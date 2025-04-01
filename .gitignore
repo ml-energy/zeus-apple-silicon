@@ -1,0 +1,12 @@
+# C++
+build/
+
+# Python
+dist/
+.env
+env/
+__pycache__/
+
+# IDEs
+.vscode/
+**/.DS_Store
