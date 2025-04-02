@@ -11,8 +11,8 @@ else()
     set(DEV_MODULE Development.Module)
 endif()
 
-# Search for Python >= 3.8.
-find_package(Python 3.8 COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
+# Search for Python >= 3.9.
+find_package(Python 3.9 COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
 
 # The lines below configure CMake to perform an optimized release build by
 # default unless another build type is specified. Without this addition,
