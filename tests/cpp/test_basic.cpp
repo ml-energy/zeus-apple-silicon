@@ -9,9 +9,30 @@ void test_program(long long limit) {
 }
 
 void print_results(const AppleEnergyMetrics& result) {
-    std::cout << "CPU: " << result.cpu_mj << " mJ" << '\n';
-    std::cout << "GPU: " << result.gpu_mj << " mJ" << '\n';
-    std::cout << "ANE: " << result.ane_mj << " mJ" << '\n';
+
+    std::cout << "CPU: ";
+    if (result.cpu_mj) {
+        std::cout << result.cpu_mj.value() << " mJ" << '\n';
+    }
+    else {
+        std::cout << "unavailable" << '\n';
+    }
+
+    std::cout << "GPU: ";
+    if (result.gpu_mj) {
+        std::cout << result.gpu_mj.value() << " mJ" << '\n';
+    }
+    else {
+        std::cout << "unavailable" << '\n';
+    }
+
+    std::cout << "ANE: ";
+    if (result.ane_mj) {
+        std::cout << result.ane_mj.value() << " mJ" << '\n';
+    }
+    else {
+        std::cout << "unavailable" << '\n';
+    }
 }
 
 int main() {
