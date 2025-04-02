@@ -62,14 +62,14 @@ extern "C" {
 
 // Represents a single parsed measurement reported by `AppleEnergyMonitor`.
 // Units are in mJ.
-struct Metrics {
+struct AppleEnergyMetrics {
     int64_t cpu_mj = 0;
     int64_t gpu_mj = 0;
     int64_t ane_mj = 0;
     int64_t dram_mj = 0;
 
-    Metrics operator-(const Metrics& other) const {
-        Metrics result;
+    AppleEnergyMetrics operator-(const AppleEnergyMetrics& other) const {
+        AppleEnergyMetrics result;
         result.cpu_mj = cpu_mj - other.cpu_mj;
         result.gpu_mj = gpu_mj - other.gpu_mj;
         result.ane_mj = ane_mj - other.ane_mj;
@@ -93,8 +93,8 @@ public:
         }
     }
 
-    Metrics get_cumulative_energy() {
-        Metrics result;
+    AppleEnergyMetrics get_cumulative_energy() {
+        AppleEnergyMetrics result;
 
         CFDictionaryRef sample = IOReportCreateSamples(subscription, channels_dict_mutable, nullptr);
 
@@ -153,7 +153,7 @@ public:
         begin_samples[key] = IOReportCreateSamples(subscription, channels_dict_mutable, nullptr);
     }
 
-    Metrics end_window(const std::string& key) {
+    AppleEnergyMetrics end_window(const std::string& key) {
         auto it = begin_samples.find(key);
         if (it == begin_samples.end()) {
             throw std::runtime_error("No measurement with provided key had been started."); 
@@ -178,7 +178,7 @@ public:
             throw std::runtime_error("No IOReportChannels key found in sample delta.");
         }
 
-        Metrics result;
+        AppleEnergyMetrics result;
         
         // Channels_value should be a CFArrayRef of channel dictionaries.
         CFArrayRef channels_array = static_cast<CFArrayRef>(channels_value);

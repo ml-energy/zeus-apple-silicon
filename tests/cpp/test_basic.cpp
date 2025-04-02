@@ -8,7 +8,7 @@ void test_program(long long limit) {
     }
 }
 
-void print_results(const Metrics& result) {
+void print_results(const AppleEnergyMetrics& result) {
     std::cout << "CPU: " << result.cpu_mj << " mJ" << '\n';
     std::cout << "GPU: " << result.gpu_mj << " mJ" << '\n';
     std::cout << "ANE: " << result.ane_mj << " mJ" << '\n';
@@ -21,7 +21,7 @@ int main() {
 
     monitor.begin_window("test1");
     test_program(1000);
-    Metrics result = monitor.end_window("test1");
+    AppleEnergyMetrics result = monitor.end_window("test1");
 
     print_results(result);
 }
