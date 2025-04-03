@@ -33,3 +33,9 @@ wheel.packages = ["bindings/zeus_apple_silicon"]
 minimum-version = "0.4"
 build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
+
+[project.optional-dependencies]
+lint = ["ruff", "black==22.6.0", "pyright!=1.1.395"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
