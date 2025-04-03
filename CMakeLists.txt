@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15...3.27)
-project(zeus-apple-silicon)
+project(zeus-apple-silicon LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,5 +32,13 @@ find_package(nanobind CONFIG REQUIRED)
 # For any files that might use `energy.hpp`.
 set(ENERGY_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/zeus_apple_silicon)
 
-add_subdirectory(bindings)
-add_subdirectory(tests/cpp)
+if (SKBUILD)
+    message(WARNING "Building as scikit-build; compiling bindings, but skipping tests.")
+    add_subdirectory(bindings)
+    # Install directive for scikit-build-core
+    install(TARGETS zeus_ext LIBRARY DESTINATION zeus_apple_silicon)
+else()
+    message(STATUS "Building normally (not as scikit-build).")
+    add_subdirectory(bindings)
+    add_subdirectory(tests/cpp)
+endif()

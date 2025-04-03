@@ -34,8 +34,8 @@ std::string represent_metrics(const AppleEnergyMetrics& metrics) {
 
     repr += "GPU_SRAM: ";
     repr += metrics.gpu_sram_mj ? (
-        std::to_string(metrics.gpu_sram_mj.value()) + " mJ\n"
-    ) : "None (unavailable)\n";
+        std::to_string(metrics.gpu_sram_mj.value()) + " mJ"
+    ) : "None (unavailable)";
 
     return repr;
 }
