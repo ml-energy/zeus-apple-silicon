@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -51,11 +52,15 @@ it will be left as an empty `std::optional<int64_t>` object.
 Units are in mJ.
 */
 struct AppleEnergyMetrics {
-  std::optional<int64_t> cpu_mj;
-  std::optional<int64_t> gpu_mj;
-  std::optional<int64_t> ane_mj;
+  std::optional<int64_t> cpu_total_mj;
+  std::optional<std::vector<int64_t>> efficiency_cores_mj;
+  std::optional<std::vector<int64_t>> performance_cores_mj;
   std::optional<int64_t> dram_mj;
+
+  std::optional<int64_t> gpu_mj;
   std::optional<int64_t> gpu_sram_mj;
+
+  std::optional<int64_t> ane_mj;
 };
 
 class AppleEnergyMonitor {
@@ -181,15 +186,31 @@ private:
       std::string channel_name = to_std_string(cf_channel_name);
       std::string unit = to_std_string(cf_unit);
 
-      if (channel_name.find("GPU Energy") != std::string::npos) {
+      if (channel_name.find("CPU Energy") != std::string::npos) {
+        int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
+        result.cpu_total_mj = energy;
+      } else if (isCpuCore(channel_name, 'E')) {
+        int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
+        if (!result.efficiency_cores_mj) {
+          result.efficiency_cores_mj = std::vector<int64_t>();
+        }
+        result.efficiency_cores_mj->push_back(energy);
+      } else if (isCpuCore(channel_name, 'P')) {
+        int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
+        if (!result.performance_cores_mj) {
+          result.performance_cores_mj = std::vector<int64_t>();
+        }
+        result.performance_cores_mj->push_back(energy);
+      } else if (channel_name.find("DRAM") != std::string::npos) {
+        int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
+        result.dram_mj = energy;
+      } else if (channel_name.find("GPU Energy") != std::string::npos) {
         int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
         result.gpu_mj = energy / 1e6;
-      } else if (channel_name.find("CPU Energy") != std::string::npos) {
+      } else if (channel_name.find("GPU SRAM") != std::string::npos) {
         int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
-        result.cpu_mj = energy;
+        result.gpu_sram_mj = energy;
       } else if (channel_name.find("ANE") != std::string::npos) {
-        int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
-      } else if (channel_name.find("DRAM") != std::string::npos) {
         int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
       }
     }
@@ -205,5 +226,35 @@ private:
       return std::string(buffer);
     }
     throw std::runtime_error("Failed to convert CFString to std::string");
+  }
+
+  // Checks if a string starts with `core_type` and ends with "CPU" followed by
+  // a number.
+  bool isCpuCore(const std::string &s, char core_type) {
+    // 1) Check first character.
+    if (s.empty() || s[0] != core_type) {
+      return false;
+    }
+
+    // 2) Find the last occurrence of "CPU"
+    std::size_t pos = s.rfind("CPU");
+    if (pos == std::string::npos) {
+      return false;
+    }
+
+    // Ensure there's at least one character after "CPU" (for the number)
+    std::size_t startOfNumber = pos + 3;
+    if (startOfNumber >= s.size()) {
+      return false;
+    }
+
+    // 3) Verify that all remaining characters are digits
+    for (std::size_t i = startOfNumber; i < s.size(); ++i) {
+      if (!std::isdigit(static_cast<unsigned char>(s[i]))) {
+        return false;
+      }
+    }
+
+    return true;
   }
 };
