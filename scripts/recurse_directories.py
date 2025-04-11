@@ -1,6 +1,7 @@
 import os
 import subprocess
 import argparse
+import sys
 
 
 def run_command_on_files(
@@ -17,7 +18,7 @@ def run_command_on_files(
                         print(f"Running: {' '.join(full_command)}")
                         subprocess.run(full_command, check=True)
                     except subprocess.CalledProcessError as e:
-                        print(f"Failed on {file_path}: {e}")
+                        sys.exit(e.returncode)
 
 
 def main():

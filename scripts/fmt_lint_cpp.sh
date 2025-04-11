@@ -11,5 +11,5 @@ else
   python3 ./scripts/recurse_directories.py \
           -d include bindings \
           -e .cpp .h .hpp \
-          -c clang-format --dry-run
+          -c clang-format --dry-run -Werror
 fi

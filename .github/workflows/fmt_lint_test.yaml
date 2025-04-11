@@ -1,0 +1,43 @@
+name: (zeus-apple-silicon) Check format, lint, and test
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/fmt_lint_test.yaml'
+      - 'bindings/**'
+      - 'include/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+  push:
+    paths:
+      - '.github/workflows/fmt_lint_test.yaml'
+      - 'bindings/**'
+      - 'include/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+
+# Jobs initiated by previous pushes get cancelled by a new push.
+concurrency:
+  group: ${{ github.ref }}-lint-and-test
+  cancel-in-progress: true
+
+jobs:
+  format_lint_test:
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+          cache: 'pip'
+      - name: Install zeus-apple-silicon and lint tools
+        run: pip install -U pip && pip install ".[dev]"
+      - name: Check C++ format
+        run: bash scripts/fmt_lint_cpp.sh
+      - name: Check Python format and lint
+        run: bash scripts/fmt_lint_py.sh
