@@ -3,9 +3,9 @@
 set -ev
 
 if [[ -z $GITHUB_ACTION ]]; then
-  black bindings tests
+  ruff format bindings tests
 else
-  black --check bindings tests
+  ruff format --check bindings tests
 fi
 
 ruff check bindings

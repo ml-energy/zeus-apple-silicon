@@ -1,64 +1,42 @@
 #pragma once
 
-#include <string>
 #include <iostream>
 #include <optional>
 #include <stdexcept>
+#include <string>
 #include <unordered_map>
+
 #include <CoreFoundation/CoreFoundation.h>
 
 
 /* An alias for the subscription reference (forward declared). */
-typedef struct __IOReportSubscriptionRef *IOReportSubscriptionRef;
+typedef struct __IOReportSubscriptionRef* IOReportSubscriptionRef;
 
 extern "C" {
-    /* Returns a dictionary containing channels for the given group. */
-    CFDictionaryRef IOReportCopyChannelsInGroup(
-        CFStringRef group,
-        CFStringRef subgroup,
-        uint64_t a,
-        uint64_t b,
-        uint64_t c
-    );
+/* Returns a dictionary containing channels for the given group. */
+CFDictionaryRef IOReportCopyChannelsInGroup(CFStringRef group, CFStringRef subgroup, uint64_t a, uint64_t b,
+                                            uint64_t c);
 
-    /* Creates an IOReport subscription based on a mutable channels dictionary. */
-    IOReportSubscriptionRef IOReportCreateSubscription(
-        const void *unused1,
-        CFMutableDictionaryRef channels_dict,
-        CFMutableDictionaryRef *unused2,
-        uint64_t unused3,
-        CFTypeRef unused4
-    );
+/* Creates an IOReport subscription based on a mutable channels dictionary. */
+IOReportSubscriptionRef IOReportCreateSubscription(const void* unused1, CFMutableDictionaryRef channels_dict,
+                                                   CFMutableDictionaryRef* unused2, uint64_t unused3,
+                                                   CFTypeRef unused4);
 
-    /* Creates a sample (snapshot) from the subscription. */
-    CFDictionaryRef IOReportCreateSamples(
-        IOReportSubscriptionRef subs,
-        CFMutableDictionaryRef channels_dict_mut,
-        const void *unused
-    );
+/* Creates a sample (snapshot) from the subscription. */
+CFDictionaryRef IOReportCreateSamples(IOReportSubscriptionRef subs, CFMutableDictionaryRef channels_dict_mut,
+                                      const void* unused);
 
-    /* Creates a “delta” sample from two snapshots. */
-    CFDictionaryRef IOReportCreateSamplesDelta(
-        CFDictionaryRef sample1,
-        CFDictionaryRef sample2,
-        const void *unused
-    );
+/* Creates a “delta” sample from two snapshots. */
+CFDictionaryRef IOReportCreateSamplesDelta(CFDictionaryRef sample1, CFDictionaryRef sample2, const void* unused);
 
-    /* Returns a simple integer value from the channel’s dictionary. */
-    int64_t IOReportSimpleGetIntegerValue(
-        CFDictionaryRef item,
-        int unused
-    );
+/* Returns a simple integer value from the channel’s dictionary. */
+int64_t IOReportSimpleGetIntegerValue(CFDictionaryRef item, int unused);
 
-    /* Returns a CFString representing the channel’s name. */
-    CFStringRef IOReportChannelGetChannelName(
-        CFDictionaryRef item
-    );
+/* Returns a CFString representing the channel’s name. */
+CFStringRef IOReportChannelGetChannelName(CFDictionaryRef item);
 
-    /* Returns the units of a channel. */
-    CFStringRef IOReportChannelGetUnitLabel(
-        CFDictionaryRef item
-    );
+/* Returns the units of a channel. */
+CFStringRef IOReportChannelGetUnitLabel(CFDictionaryRef item);
 }
 
 /*
@@ -80,9 +58,7 @@ struct AppleEnergyMetrics {
 
 class AppleEnergyMonitor {
 public:
-    AppleEnergyMonitor() {
-        initialize();
-    }
+    AppleEnergyMonitor() { initialize(); }
 
     ~AppleEnergyMonitor() {
         CFRelease(subscription);
@@ -103,7 +79,7 @@ public:
     AppleEnergyMetrics end_window(const std::string& key) {
         auto it = begin_samples.find(key);
         if (it == begin_samples.end()) {
-            throw std::runtime_error("No measurement with provided key had been started."); 
+            throw std::runtime_error("No measurement with provided key had been started.");
         }
 
         CFDictionaryRef sample1 = it->second;
@@ -151,9 +127,7 @@ private:
 
         // Create the IOReport subscription.
         CFMutableDictionaryRef updatedChannels = nullptr;
-        subscription = IOReportCreateSubscription(
-            nullptr, channels_dict_mutable, &updatedChannels, 0, nullptr
-        );
+        subscription = IOReportCreateSubscription(nullptr, channels_dict_mutable, &updatedChannels, 0, nullptr);
 
         if (subscription == nullptr) {
             std::cerr << "Failed to create subscription" << '\n';
@@ -165,9 +139,9 @@ private:
 
         // The sample is expected to contain the channels under the key "IOReportChannels".
         CFStringRef key_str = CFStringCreateWithCString(nullptr, "IOReportChannels", kCFStringEncodingUTF8);
-        const void *channels_value = CFDictionaryGetValue(sample, key_str);
+        const void* channels_value = CFDictionaryGetValue(sample, key_str);
         CFRelease(key_str);
-        
+
         // If parsing the sample was not possible, return a result having all fields
         // set to an empty `std::optional`, indicating that all fields are unobservable.
         if (channels_value == nullptr) {
@@ -180,7 +154,7 @@ private:
 
         // Iterate through all channels in our subscription.
         for (CFIndex i = 0; i < array_count; i++) {
-            const void *item_ptr = CFArrayGetValueAtIndex(channels_array, i);
+            const void* item_ptr = CFArrayGetValueAtIndex(channels_array, i);
             CFDictionaryRef item = static_cast<CFDictionaryRef>(item_ptr);
 
             // Get the channel's name and unit label.
@@ -193,15 +167,12 @@ private:
             if (channel_name.find("GPU Energy") != std::string::npos) {
                 int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
                 result.gpu_mj = energy / 1e6;
-            }
-            else if (channel_name.find("CPU Energy") != std::string::npos) {
+            } else if (channel_name.find("CPU Energy") != std::string::npos) {
                 int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
                 result.cpu_mj = energy;
-            }
-            else if (channel_name.find("ANE") != std::string::npos) {
+            } else if (channel_name.find("ANE") != std::string::npos) {
                 int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
-            }
-            else if (channel_name.find("DRAM") != std::string::npos) {
+            } else if (channel_name.find("DRAM") != std::string::npos) {
                 int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
             }
         }
