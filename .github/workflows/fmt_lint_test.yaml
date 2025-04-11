@@ -35,8 +35,10 @@ jobs:
         with:
           python-version: 3.9
           cache: 'pip'
-      - name: Install zeus-apple-silicon and lint tools
+      - name: Install zeus-apple-silicon and python dependencies
         run: pip install -U pip && pip install ".[dev]"
+      - name: Install clang-format
+        run: brew install clang-format
       - name: Check C++ format
         run: bash scripts/fmt_lint_cpp.sh
       - name: Check Python format and lint
