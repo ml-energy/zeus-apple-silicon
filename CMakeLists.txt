@@ -13,6 +13,19 @@ endif()
 
 # Search for Python >= 3.9.
 find_package(Python 3.9 COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
+# NOTE: if your development environment is VSCode, it's possible that VSCode
+# will reconfigure CMake every time on boot-up. The problem is, if you're also
+# using a Python virtual environment, VSCode will configure CMake *without* having
+# activated your virtual environment. This will cause CMake to find a different
+# Python installation in the line above (likely, your system Python).
+# If that happens and you want to force CMake to use your virtual environment's
+# Python, you must manually reconfigure CMake with your virtual environment
+# activated. To do this, first activate your virtual environment, and then
+# run the following command from the root of this repository:
+#   cmake -S . -B build --fresh
+# Note that the `--fresh` flag prevents CMake from using the cached location of
+# Python (i.e., the system Python it found earlier).
+
 
 # The lines below configure CMake to perform an optimized release build by
 # default unless another build type is specified. Without this addition,
