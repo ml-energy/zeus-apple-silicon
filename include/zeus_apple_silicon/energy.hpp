@@ -207,9 +207,11 @@ private:
         }
         result.performance_cores_mj->push_back(energy);
       } else if (is_cpu_manager(channel_name, 'E')) {
-        result.efficiency_core_manager_mj = result.efficiency_core_manager_mj.value_or(0) + energy;
+        result.efficiency_core_manager_mj =
+            result.efficiency_core_manager_mj.value_or(0) + energy;
       } else if (is_cpu_manager(channel_name, 'P')) {
-        result.performance_core_manager_mj = result.performance_core_manager_mj.value_or(0) + energy;
+        result.performance_core_manager_mj =
+            result.performance_core_manager_mj.value_or(0) + energy;
       } else if (channel_name.find("DRAM") != std::string::npos) {
         result.dram_mj = energy;
       } else if (channel_name.find("GPU Energy") != std::string::npos) {
