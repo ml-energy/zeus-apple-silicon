@@ -37,6 +37,18 @@ std::string represent_metrics(const AppleEnergyMetrics &metrics) {
     repr += "None (unavailable)\n";
   }
 
+  repr += "Efficiency core manager: ";
+  repr += metrics.efficiency_core_manager_mj
+              ? (std::to_string(metrics.efficiency_core_manager_mj.value()) +
+                 " mJ\n")
+              : "None (unavailable)\n";
+
+  repr += "Performance core manager: ";
+  repr += metrics.performance_core_manager_mj
+              ? (std::to_string(metrics.performance_core_manager_mj.value()) +
+                 " mJ\n")
+              : "None (unavailable)\n";
+
   repr += "DRAM: ";
   repr += metrics.dram_mj ? (std::to_string(metrics.dram_mj.value()) + " mJ\n")
                           : "None (unavailable)\n";
@@ -64,6 +76,10 @@ NB_MODULE(zeus_ext, m) {
       .def_rw("cpu_total_mj", &AppleEnergyMetrics::cpu_total_mj)
       .def_rw("efficiency_cores_mj", &AppleEnergyMetrics::efficiency_cores_mj)
       .def_rw("performance_cores_mj", &AppleEnergyMetrics::performance_cores_mj)
+      .def_rw("efficiency_core_manager_mj",
+              &AppleEnergyMetrics::efficiency_core_manager_mj)
+      .def_rw("performance_core_manager_mj",
+              &AppleEnergyMetrics::performance_core_manager_mj)
       .def_rw("dram_mj", &AppleEnergyMetrics::dram_mj)
       .def_rw("gpu_mj", &AppleEnergyMetrics::gpu_mj)
       .def_rw("gpu_sram_mj", &AppleEnergyMetrics::gpu_sram_mj)
