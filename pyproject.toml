@@ -35,8 +35,9 @@ build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
 
 [project.optional-dependencies]
-lint = ["ruff", "black==22.6.0", "pyright!=1.1.395"]
-dev = ["zeus-apple-silicon[lint]"]
+lint = ["ruff", "pyright!=1.1.395"]
+test = ["pytest"]
+dev = ["zeus-apple-silicon[lint,test]"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
