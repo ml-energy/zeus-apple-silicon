@@ -46,7 +46,7 @@ find_package(nanobind CONFIG REQUIRED)
 set(ENERGY_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/zeus_apple_silicon)
 
 if (SKBUILD)
-    message(STATUS "Building as scikit-build; compiling bindings, but skipping tests.")
+    message(STATUS "Building as scikit-build; only compiling bindings.")
     add_subdirectory(bindings)
     # Install directive for scikit-build-core
     install(TARGETS zeus_ext LIBRARY DESTINATION zeus_apple_silicon)

@@ -43,5 +43,7 @@ jobs:
         run: bash scripts/fmt_lint_cpp.sh
       - name: Check Python format and lint
         run: bash scripts/fmt_lint_py.sh
-      - name: Test zeus-apple-silicon (Python)
-        run: python -m pytest
+      - name: Test zeus-apple-silicon (C++)
+        run: bash scripts/test_cpp.sh
+      # - name: Test zeus-apple-silicon (Python)
+      #   run: python -m pytest

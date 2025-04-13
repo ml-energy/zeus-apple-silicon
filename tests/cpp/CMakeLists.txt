@@ -1,11 +1,18 @@
 set(
-    TEST_BASIC_SOURCES
-    test_basic.cpp
+    TEST_MONITOR_SOURCES
+    test_monitor.cpp
 )
 
-add_executable(test_basic ${TEST_BASIC_SOURCES})
-target_link_libraries(test_basic PRIVATE
-    IOReport                       # If compiling manually, this corresponds to: -lIOReport
-    "-framework CoreFoundation"    # And this corresponds to: -framework CoreFoundation
+set(
+    MOCK_SOURCES
+    mock_ioreport.cpp
 )
-target_include_directories(test_basic PUBLIC ${ENERGY_INCLUDE_DIR})
+
+add_executable(test_monitor
+    ${TEST_MONITOR_SOURCES}
+    ${MOCK_SOURCES}
+)
+target_link_libraries(test_monitor PRIVATE
+    "-framework CoreFoundation"
+)
+target_include_directories(test_monitor PUBLIC ${ENERGY_INCLUDE_DIR})
