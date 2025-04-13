@@ -4,3 +4,4 @@ target_link_libraries(zeus_ext PRIVATE
     "-framework CoreFoundation"    # And this corresponds to: -framework CoreFoundation
 )
 target_include_directories(zeus_ext PUBLIC ${ENERGY_INCLUDE_DIR})
+target_compile_definitions(zeus_ext PRIVATE EXT_NAME=zeus_ext)

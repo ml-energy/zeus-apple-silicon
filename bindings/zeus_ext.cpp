@@ -1,3 +1,7 @@
+#ifndef EXT_NAME
+#define EXT_NAME "zeus_ext"
+#endif
+
 #include <string>
 
 #include <nanobind/nanobind.h>
@@ -65,7 +69,7 @@ std::string represent_metrics(const AppleEnergyMetrics& metrics)
     return repr;
 }
 
-NB_MODULE(zeus_ext, m)
+NB_MODULE(EXT_NAME, m)
 {
     m.doc() = "An API for programmatically measuring energy consumption on Apple "
               "silicon chips.";

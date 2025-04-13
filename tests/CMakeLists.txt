@@ -6,3 +6,4 @@ set(
 )
 
 add_subdirectory(tests_cpp)
+add_subdirectory(mocker)
