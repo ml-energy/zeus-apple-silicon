@@ -3,12 +3,16 @@
 #endif
 
 #include <string>
-
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/string.h>
-
 #include "energy.hpp"
+
+// If a mocked version of the library is being built, we need these imports.
+#if defined(MOCK_MODE) && (MOCK_MODE == 1)
+#include "mock_ioreport.hpp"
+#include <nanobind/stl/unordered_map.h>
+#endif
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -94,4 +98,15 @@ NB_MODULE(EXT_NAME, m)
         .def("get_cumulative_energy", &AppleEnergyMonitor::get_cumulative_energy)
         .def("begin_window", &AppleEnergyMonitor::begin_window, "key"_a)
         .def("end_window", &AppleEnergyMonitor::end_window, "key"_a);
+
+    // If a mocked version of the library is being built, expose the Mocker class.
+    #if defined(MOCK_MODE) && (MOCK_MODE == 1)
+    nb::class_<Mocker>(m, "Mocker")
+        .def(nb::init<>())
+        .def("push_back_sample", &Mocker::push_back_sample, "data"_a)
+        .def("pop_back_sample", &Mocker::pop_back_sample)
+        .def("clear_all_mock_samples", &Mocker::clear_all_mock_samples)
+        .def("set_sample_index", &Mocker::set_sample_index, "index"_a);
+    #endif
+    
 }
