@@ -35,6 +35,8 @@ jobs:
         with:
           python-version: 3.9
           cache: 'pip'
+      - name: Install nanobind
+        run: python -m pip install nanobind
       - name: Install zeus-apple-silicon and python dependencies
         run: pip install -U pip && pip install ".[dev]"
       - name: Install clang-format
