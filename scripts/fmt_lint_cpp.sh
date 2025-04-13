@@ -4,12 +4,12 @@ set -ev
 
 if [[ -z $GITHUB_ACTION ]]; then
   python3 ./scripts/recurse_directories.py \
-          -d include bindings \
+          -d include bindings tests \
           -e .cpp .h .hpp \
-          -c clang-format -i -style=LLVM
+          -c clang-format -i -style=webkit
 else
   python3 ./scripts/recurse_directories.py \
-          -d include bindings \
+          -d include bindings tests \
           -e .cpp .h .hpp \
-          -c clang-format --dry-run -Werror -style=LLVM
+          -c clang-format --dry-run -Werror -style=webkit
 fi
