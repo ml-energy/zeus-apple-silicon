@@ -1,6 +1,7 @@
 #include "energy.hpp"
 
-uint64_t dummy_work(uint64_t limit) {
+uint64_t dummy_work(uint64_t limit)
+{
     volatile uint64_t x = 0;
     for (uint64_t i = 0; i < limit; i++) {
         for (uint64_t j = 0; j < 100000; j++) {
@@ -10,7 +11,8 @@ uint64_t dummy_work(uint64_t limit) {
     return x;
 }
 
-void measure_one_interval() {
+void measure_one_interval()
+{
     AppleEnergyMonitor monitor;
 
     monitor.begin_window("test");
@@ -24,6 +26,7 @@ void measure_one_interval() {
     std::cout << "GPU Energy: " << metrics.gpu_mj.value() << " mJ" << std::endl;
 }
 
-int main() {
+int main()
+{
     measure_one_interval();
 }

@@ -1,4 +1,8 @@
-from build.tests.mocker.mocked_zeus_ext import AppleEnergyMonitor, AppleEnergyMetrics, Mocker
+from build.tests.mocker.mocked_zeus_ext import (
+    AppleEnergyMonitor,
+    AppleEnergyMetrics,
+    Mocker,
+)
 import pytest
 
 
@@ -6,14 +10,18 @@ def test_one_interval():
     """Simulate a well-formulated usage of the energy monitor."""
 
     mocker = Mocker()
-    mocker.push_back_sample({
-        "CPU Energy": 10000000,
-        "GPU Energy": 1000000,
-    })
-    mocker.push_back_sample({
-        "CPU Energy": 90000000,
-        "GPU Energy": 6000000,
-    })
+    mocker.push_back_sample(
+        {
+            "CPU Energy": 10000000,
+            "GPU Energy": 1000000,
+        }
+    )
+    mocker.push_back_sample(
+        {
+            "CPU Energy": 90000000,
+            "GPU Energy": 6000000,
+        }
+    )
 
     monitor = AppleEnergyMonitor()
     assert isinstance(monitor, AppleEnergyMonitor)
@@ -33,22 +41,30 @@ def test_overlapping_intervals():
     """Simulate overlapping intervals."""
 
     mocker = Mocker()
-    mocker.push_back_sample({
-        "CPU Energy": 10000000,
-        "GPU Energy": 1000000,
-    })
-    mocker.push_back_sample({
-        "CPU Energy": 20000000,
-        "GPU Energy": 2000000,
-    })
-    mocker.push_back_sample({
-        "CPU Energy": 50000000,
-        "GPU Energy": 5000000,
-    })
-    mocker.push_back_sample({
-        "CPU Energy": 80000000,
-        "GPU Energy": 8000000,
-    })
+    mocker.push_back_sample(
+        {
+            "CPU Energy": 10000000,
+            "GPU Energy": 1000000,
+        }
+    )
+    mocker.push_back_sample(
+        {
+            "CPU Energy": 20000000,
+            "GPU Energy": 2000000,
+        }
+    )
+    mocker.push_back_sample(
+        {
+            "CPU Energy": 50000000,
+            "GPU Energy": 5000000,
+        }
+    )
+    mocker.push_back_sample(
+        {
+            "CPU Energy": 80000000,
+            "GPU Energy": 8000000,
+        }
+    )
 
     monitor = AppleEnergyMonitor()
 
