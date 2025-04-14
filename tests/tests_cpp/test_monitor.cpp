@@ -138,7 +138,6 @@ void test_unit_handling()
     std::cout << "  > test_unit_handling passed.\n";
 }
 
-
 std::string represent_metrics(const AppleEnergyMetrics& metrics)
 {
     std::string repr = "";
