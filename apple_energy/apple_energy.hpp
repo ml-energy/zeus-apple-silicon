@@ -191,7 +191,7 @@ private:
             int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
             std::string unit = to_std_string(cf_unit);
 
-            // TODO: add proper handling for units.
+            energy = convert_to_mj(energy, unit);
 
             if (channel_name.find("CPU Energy") != std::string::npos) {
                 result.cpu_total_mj = energy;
@@ -212,7 +212,7 @@ private:
             } else if (channel_name.find("DRAM") != std::string::npos) {
                 result.dram_mj = energy;
             } else if (channel_name.find("GPU Energy") != std::string::npos) {
-                result.gpu_mj = energy / 1e6;
+                result.gpu_mj = energy;
             } else if (channel_name.find("GPU SRAM") != std::string::npos) {
                 result.gpu_sram_mj = energy;
             } else if (channel_name.find("ANE") != std::string::npos) {
@@ -279,5 +279,38 @@ private:
         }
 
         return true;
+    }
+
+    int64_t convert_to_mj(int64_t energy, const std::string& unit)
+    {
+        if (unit == "nJ") {
+            return energy / 1'000'000LL;
+        } else if (unit == "uJ" || unit == "µJ") {
+            return energy / 1'000LL;
+        } else if (unit == "mJ") {
+            return energy;
+        } else if (unit == "cJ") {
+            return energy * 10LL;
+        } else if (unit == "dJ") {
+            return energy * 100LL;
+        } else if (unit == "J") {
+            return energy * 1'000LL;
+        } else if (unit == "daJ") {
+            return energy * 10'000LL;
+        } else if (unit == "hJ") {
+            return energy * 100'000LL;
+        } else if (unit == "kJ") {
+            return energy * 1'000'000LL;
+        } else if (unit == "MJ") {
+            return energy * 1'000'000'000LL;
+        } else if (unit == "GJ") {
+            return energy * 1'000'000'000'000LL;
+        } else if (unit == "TJ") {
+            return energy * 1'000'000'000'000'000LL;
+        } else if (unit == "PJ") {
+            return energy * 1'000'000'000'000'000'000LL;
+        } else {
+            throw std::invalid_argument("Unsupported or invalid energy unit provided: " + unit);
+        }
     }
 };
