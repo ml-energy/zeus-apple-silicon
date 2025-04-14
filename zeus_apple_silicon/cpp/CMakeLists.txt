@@ -3,5 +3,7 @@ target_link_libraries(zeus_ext PRIVATE
     IOReport                       # If compiling manually, this corresponds to: -lIOReport
     "-framework CoreFoundation"    # And this corresponds to: -framework CoreFoundation
 )
-target_include_directories(zeus_ext PUBLIC ${ENERGY_INCLUDE_DIR})
-target_compile_definitions(zeus_ext PRIVATE EXT_NAME=zeus_ext)
+target_include_directories(zeus_ext PUBLIC
+    ${APPLE_ENERGY_DIR}     # apple_energy.hpp
+    ${ENERGY_BINDINGS_DIR}  # energy_bindings.hpp
+)

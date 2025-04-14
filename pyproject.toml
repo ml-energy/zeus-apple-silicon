@@ -29,7 +29,7 @@ Homepage = "https://ml.energy/zeus"
 Documentation = "https://ml.energy/zeus"
 
 [tool.scikit-build]
-wheel.packages = ["bindings/zeus_apple_silicon"]
+wheel.packages = ["zeus_apple_silicon"]
 minimum-version = "0.4"
 build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"

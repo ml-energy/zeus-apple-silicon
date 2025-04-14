@@ -3,10 +3,10 @@
 set -ev
 
 if [[ -z $GITHUB_ACTION ]]; then
-  ruff format bindings tests
+  ruff format zeus_apple_silicon tests
 else
-  ruff format --check bindings tests
+  ruff format --check zeus_apple_silicon tests
 fi
 
-ruff check bindings
-pyright bindings
+ruff check zeus_apple_silicon
+pyright zeus_apple_silicon

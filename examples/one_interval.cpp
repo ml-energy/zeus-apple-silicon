@@ -1,4 +1,4 @@
-#include "energy.hpp"
+#include "apple_energy.hpp"
 
 uint64_t dummy_work(uint64_t limit)
 {

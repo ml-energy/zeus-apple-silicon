@@ -12,6 +12,6 @@ target_link_libraries(test_monitor PRIVATE
 )
 
 target_include_directories(test_monitor PUBLIC
-    ${ENERGY_INCLUDE_DIR}
-    ${MOCKER_INCLUDE_DIR}
+    ${APPLE_ENERGY_DIR}
+    ${MOCKER_DIR}
 )

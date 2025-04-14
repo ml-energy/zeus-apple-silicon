@@ -1,18 +1,21 @@
-#ifndef EXT_NAME
-#define EXT_NAME "zeus_ext"
-#endif
+/*
+This file declares and defines bindings for classes and functions in `/apple_energy/energy.hpp`
+-- i.e., `AppleEnergyMetrics` and `AppleEnergyMonitor`.
 
-#include "energy.hpp"
+The reason the bindings in here are defined outside `zeus_ext.cpp` is because these bindings
+are also used in `/tests/mocker/mocker_ext.cpp` to generate an extension for a mocker class
+used in testing.
+*/
+
+#pragma once
+
+#include "apple_energy.hpp"
+
+#include <string>
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/string.h>
-#include <string>
-
-// If a mocked version of the library is being built, we need these imports.
-#if defined(MOCK_MODE) && (MOCK_MODE == 1)
-#include "mock_ioreport.hpp"
-#include <nanobind/stl/unordered_map.h>
-#endif
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -73,11 +76,8 @@ std::string represent_metrics(const AppleEnergyMetrics& metrics)
     return repr;
 }
 
-NB_MODULE(EXT_NAME, m)
+void register_metrics(nb::module_& m)
 {
-    m.doc() = "An API for programmatically measuring energy consumption on Apple "
-              "silicon chips.";
-
     nb::class_<AppleEnergyMetrics>(m, "AppleEnergyMetrics")
         .def(nb::init<>())
         .def("__repr__", &represent_metrics)
@@ -92,20 +92,13 @@ NB_MODULE(EXT_NAME, m)
         .def_rw("gpu_mj", &AppleEnergyMetrics::gpu_mj)
         .def_rw("gpu_sram_mj", &AppleEnergyMetrics::gpu_sram_mj)
         .def_rw("ane_mj", &AppleEnergyMetrics::ane_mj);
+}
 
+void register_monitor(nb::module_& m)
+{
     nb::class_<AppleEnergyMonitor>(m, "AppleEnergyMonitor")
         .def(nb::init<>())
         .def("get_cumulative_energy", &AppleEnergyMonitor::get_cumulative_energy)
         .def("begin_window", &AppleEnergyMonitor::begin_window, "key"_a)
         .def("end_window", &AppleEnergyMonitor::end_window, "key"_a);
-
-// If a mocked version of the library is being built, expose the Mocker class.
-#if defined(MOCK_MODE) && (MOCK_MODE == 1)
-    nb::class_<Mocker>(m, "Mocker")
-        .def(nb::init<>())
-        .def("push_back_sample", &Mocker::push_back_sample, "data"_a)
-        .def("pop_back_sample", &Mocker::pop_back_sample)
-        .def("clear_all_mock_samples", &Mocker::clear_all_mock_samples)
-        .def("set_sample_index", &Mocker::set_sample_index, "index"_a);
-#endif
 }

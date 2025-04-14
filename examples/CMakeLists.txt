@@ -10,4 +10,4 @@ target_link_libraries(one_interval PRIVATE
     IOReport
     "-framework CoreFoundation"
 )
-target_include_directories(one_interval PUBLIC ${ENERGY_INCLUDE_DIR})
+target_include_directories(one_interval PUBLIC ${APPLE_ENERGY_DIR})

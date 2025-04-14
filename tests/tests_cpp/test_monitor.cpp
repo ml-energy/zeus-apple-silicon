@@ -1,5 +1,5 @@
-#include "energy.hpp"
-#include "mock_ioreport.hpp"
+#include "apple_energy.hpp"
+#include "ioreport_mocker.hpp"
 #include <cassert>
 #include <iostream>
 #include <string>
