@@ -2,21 +2,7 @@ name: (zeus-apple-silicon) Check format, lint, and test
 
 on:
   pull_request:
-    paths:
-      - '.github/workflows/fmt_lint_test.yaml'
-      - 'bindings/**'
-      - 'include/**'
-      - 'scripts/**'
-      - 'tests/**'
-      - 'pyproject.toml'
   push:
-    paths:
-      - '.github/workflows/fmt_lint_test.yaml'
-      - 'bindings/**'
-      - 'include/**'
-      - 'scripts/**'
-      - 'tests/**'
-      - 'pyproject.toml'
 
 # Jobs initiated by previous pushes get cancelled by a new push.
 concurrency:
