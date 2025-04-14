@@ -12,7 +12,10 @@ else()
 endif()
 
 # Search for Python >= 3.9.
-find_package(Python 3.9 COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
+find_package(
+    Python 3.9 REQUIRED
+    COMPONENTS Interpreter ${DEV_MODULE}
+)
 # NOTE: if your development environment is VSCode, it's possible that VSCode
 # will reconfigure CMake every time on boot-up. The problem is, if you're also
 # using a Python virtual environment, VSCode will configure CMake *without* having

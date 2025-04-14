@@ -1,25 +1,73 @@
 name: Publish Python package to PyPI
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - zeus-apple-silicon-v*
 
 jobs:
-  pypi-publish:
+  build_sdist:
+    name: Build SDist
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - name: Check metadata
+      run: pipx run twine check dist/*
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dist-sdist
+        path: dist/*.tar.gz
+
+
+  build_wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - uses: pypa/cibuildwheel@v2.22
+
+    - name: Verify clean directory
+      run: git diff --exit-code
+      shell: bash
+
+    - name: Upload wheels
+      uses: actions/upload-artifact@v4
+      with:
+        path: wheelhouse/*.whl
+        name: dist-${{ matrix.os }}
+
+  upload_all:
+    name: Upload if release
+    needs: [build_wheels, build_sdist]
     runs-on: macos-latest
     if: github.repository_owner == 'ml-energy'
-    permissions:
-      id-token: write
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-          cache: 'pip'
-      - name: Build source distribution
-        run: pip install build && python -m build
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+    - uses: actions/setup-python@v5
+    - uses: actions/download-artifact@v4
+      with:
+        path: dist
+        pattern: dist-*
+        merge-multiple: true
+
+    - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.test_pypi_password }}
+        repository-url: https://test.pypi.org/legacy/

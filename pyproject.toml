@@ -28,16 +28,22 @@ Repository = "https://github.com/ml-energy/zeus-apple-silicon"
 Homepage = "https://ml.energy/zeus"
 Documentation = "https://ml.energy/zeus"
 
+[project.optional-dependencies]
+lint = ["ruff", "pyright!=1.1.395"]
+test = ["pytest"]
+dev = ["zeus-apple-silicon[lint,test]"]
+
 [tool.scikit-build]
 wheel.packages = ["zeus_apple_silicon"]
 minimum-version = "0.4"
 build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
 
-[project.optional-dependencies]
-lint = ["ruff", "pyright!=1.1.395"]
-test = ["pytest"]
-dev = ["zeus-apple-silicon[lint,test]"]
+[tool.cibuildwheel]
+build-verbosity = 1
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.14"
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
