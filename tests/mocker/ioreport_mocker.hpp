@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 /* ----- Mock Control Interface -----
 
@@ -10,7 +11,10 @@ class Mocker {
 public:
     Mocker();
     ~Mocker();
-    void push_back_sample(const std::unordered_map<std::string, int64_t>& data);
+
+    /* Map of: { key: `field_name`, value: (`value`, `unit`) } */
+    void push_back_sample(const std::unordered_map<std::string, std::pair<int64_t, std::string>>& data);
+
     void pop_back_sample();
     void clear_all_mock_samples();
     void set_sample_index(uint64_t index);

@@ -5,10 +5,11 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 /* ----- Variables and functions for mock data input configuration ----- */
-static std::vector<std::unordered_map<std::string, int64_t>> sample_data;
+static std::vector<const std::unordered_map<std::string, std::pair<int64_t, std::string>>> sample_data;
 static uint64_t mock_sample_index = 0;
 
 Mocker::Mocker()
@@ -22,7 +23,7 @@ Mocker::~Mocker()
     mock_sample_index = 0;
 }
 
-void Mocker::push_back_sample(const std::unordered_map<std::string, int64_t>& data)
+void Mocker::push_back_sample(const std::unordered_map<std::string, std::pair<int64_t, std::string>>& data)
 {
     sample_data.push_back(data);
 }
@@ -94,13 +95,44 @@ std::string to_std_string(CFStringRef cf_str)
     throw std::runtime_error("Failed to convert CFString to std::string");
 }
 
-CFDictionaryRef create_mock_channel_item(const std::string& name,
-    int64_t value)
+int64_t convert_to_mj(int64_t energy, const std::string& unit)
+{
+    if (unit == "nJ") {
+        return energy / 1'000'000LL;
+    } else if (unit == "uJ" || unit == "µJ") {
+        return energy / 1'000LL;
+    } else if (unit == "mJ") {
+        return energy;
+    } else if (unit == "cJ") {
+        return energy * 10LL;
+    } else if (unit == "dJ") {
+        return energy * 100LL;
+    } else if (unit == "J") {
+        return energy * 1'000LL;
+    } else if (unit == "daJ") {
+        return energy * 10'000LL;
+    } else if (unit == "hJ") {
+        return energy * 100'000LL;
+    } else if (unit == "kJ") {
+        return energy * 1'000'000LL;
+    } else if (unit == "MJ") {
+        return energy * 1'000'000'000LL;
+    } else if (unit == "GJ") {
+        return energy * 1'000'000'000'000LL;
+    } else if (unit == "TJ") {
+        return energy * 1'000'000'000'000'000LL;
+    } else if (unit == "PJ") {
+        return energy * 1'000'000'000'000'000'000LL;
+    } else {
+        throw std::invalid_argument("Unsupported or invalid energy unit provided: " + unit);
+    }
+}
+
+CFDictionaryRef create_mock_channel_item(const std::string& name, int64_t value, const std::string& unit)
 {
     CFStringRef cf_name = CFStringCreateWithCString(nullptr, name.c_str(), kCFStringEncodingUTF8);
 
-    const char* unit_cstr = (name.find("GPU Energy") != std::string::npos) ? "nJ" : "mJ";
-    CFStringRef cf_unit = CFStringCreateWithCString(nullptr, unit_cstr, kCFStringEncodingUTF8);
+    CFStringRef cf_unit = CFStringCreateWithCString(nullptr, unit.c_str(), kCFStringEncodingUTF8);
     CFNumberRef cf_value = CFNumberCreate(nullptr, kCFNumberSInt64Type, &value);
 
     const void* keys[] = { kMockKeyChannelName, kMockKeyUnitLabel, kMockKeyValue };
@@ -118,13 +150,17 @@ CFDictionaryRef create_mock_channel_item(const std::string& name,
 }
 
 CFDictionaryRef create_sample_from_config(
-    const std::unordered_map<std::string, int64_t>& config)
+    const std::unordered_map<std::string, std::pair<int64_t, std::string>>& config)
 {
     std::vector<CFTypeRef> channel_items;
     channel_items.reserve(config.size());
 
     for (const auto& pair : config) {
-        CFDictionaryRef item = create_mock_channel_item(pair.first, pair.second);
+        const std::string& channel_name = pair.first;
+        int64_t value = pair.second.first;
+        const std::string& unit = pair.second.second;
+
+        CFDictionaryRef item = create_mock_channel_item(channel_name, value, unit);
         channel_items.push_back(item);
     }
 
@@ -148,9 +184,9 @@ CFDictionaryRef create_sample_from_config(
 }
 
 /* Parses a sample object and returns a hashmap containing its fields. */
-std::unordered_map<std::string, int64_t> parse_sample(CFDictionaryRef sample)
+const std::unordered_map<std::string, std::pair<int64_t, std::string>> parse_sample(CFDictionaryRef sample)
 {
-    std::unordered_map<std::string, int64_t> result;
+    std::unordered_map<std::string, std::pair<int64_t, std::string>> result;
 
     CFStringRef key_str = CFStringCreateWithCString(nullptr, "IOReportChannels",
         kCFStringEncodingUTF8);
@@ -169,12 +205,14 @@ std::unordered_map<std::string, int64_t> parse_sample(CFDictionaryRef sample)
         CFDictionaryRef item = static_cast<CFDictionaryRef>(item_ptr);
 
         // Get the channel's name and unit label.
-        CFStringRef cf_channel_name = (CFStringRef)CFDictionaryGetValue(item, kMockKeyChannelName);
+        CFStringRef cf_channel_name = IOReportChannelGetChannelName(item);
+        CFStringRef cf_unit = IOReportChannelGetUnitLabel(item);
 
         std::string channel_name = to_std_string(cf_channel_name);
+        std::string unit = to_std_string(cf_unit);
         int64_t energy = IOReportSimpleGetIntegerValue(item, 0);
 
-        result[channel_name] = energy;
+        result[channel_name] = std::make_pair(energy, unit);
     }
 
     return result;
@@ -223,16 +261,32 @@ CFDictionaryRef IOReportCreateSamplesDelta(CFDictionaryRef sample1,
     CFDictionaryRef sample2,
     const void* unused)
 {
-    std::unordered_map<std::string, int64_t> diff_data;
+    std::unordered_map<std::string, std::pair<int64_t, std::string>> diff_data;
 
-    std::unordered_map<std::string, int64_t> sample1_data = parse_sample(sample1);
-    std::unordered_map<std::string, int64_t> sample2_data = parse_sample(sample2);
+    const std::unordered_map<std::string, std::pair<int64_t, std::string>> sample1_data = parse_sample(sample1);
+    const std::unordered_map<std::string, std::pair<int64_t, std::string>> sample2_data = parse_sample(sample2);
 
     for (const auto& pair : sample2_data) {
         const std::string& key = pair.first;
-        int64_t value1 = sample1_data[key];
-        int64_t value2 = pair.second;
-        diff_data[key] = value2 - value1;
+
+        auto it = sample1_data.find(key);
+        if (it == sample1_data.end()) {
+            diff_data[key] = pair.second;
+            continue;
+        }
+
+        int64_t value1 = it->second.first;
+        int64_t value2 = pair.second.first;
+
+        std::string unit1 = it->second.second;
+        std::string unit2 = pair.second.second;
+
+        if (unit1 == unit2) {
+            diff_data[key] = std::make_pair(value2 - value1, unit1);
+        } else {
+            diff_data[key] = std::make_pair(
+                convert_to_mj(value2, unit2) - convert_to_mj(value1, unit1), "mJ");
+        }
     }
 
     return create_sample_from_config(diff_data);
