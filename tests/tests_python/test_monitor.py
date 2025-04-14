@@ -12,14 +12,14 @@ def test_one_interval():
     mocker = Mocker()
     mocker.push_back_sample(
         {
-            "CPU Energy": 10000000,
-            "GPU Energy": 1000000,
+            "CPU Energy": (10000000, "mJ"),
+            "GPU Energy": (1000000, "nJ"),
         }
     )
     mocker.push_back_sample(
         {
-            "CPU Energy": 90000000,
-            "GPU Energy": 6000000,
+            "CPU Energy": (90000000, "mJ"),
+            "GPU Energy": (6000000, "nJ"),
         }
     )
 
@@ -43,26 +43,26 @@ def test_overlapping_intervals():
     mocker = Mocker()
     mocker.push_back_sample(
         {
-            "CPU Energy": 10000000,
-            "GPU Energy": 1000000,
+            "CPU Energy": (10000000, "mJ"),
+            "GPU Energy": (1000000, "nJ"),
         }
     )
     mocker.push_back_sample(
         {
-            "CPU Energy": 20000000,
-            "GPU Energy": 2000000,
+            "CPU Energy": (20000000, "mJ"),
+            "GPU Energy": (2000000, "nJ"),
         }
     )
     mocker.push_back_sample(
         {
-            "CPU Energy": 50000000,
-            "GPU Energy": 5000000,
+            "CPU Energy": (50000000, "mJ"),
+            "GPU Energy": (5000000, "nJ"),
         }
     )
     mocker.push_back_sample(
         {
-            "CPU Energy": 80000000,
-            "GPU Energy": 8000000,
+            "CPU Energy": (80000000, "mJ"),
+            "GPU Energy": (8000000, "nJ"),
         }
     )
 
@@ -84,41 +84,51 @@ def test_overlapping_intervals():
     assert res2.gpu_mj == 3
 
 
-# def test_invalid_keys():
-#     """Verify that invalid keys are handled gracefully."""
-#     monitor = AppleEnergyMonitor()
+def test_invalid_keys():
+    """Verify that invalid keys are handled gracefully."""
+    mocker = Mocker()
 
-#     monitor.begin_window("test1")
+    # Three samples will be drawn from the mocker.
+    for _ in range(3):
+        mocker.push_back_sample({})
 
-#     # Creating a new window with the same key is invalid.
-#     with pytest.raises(RuntimeError):
-#         monitor.begin_window("test1")
+    monitor = AppleEnergyMonitor()
 
-#     # Ending a window that was never started is invalid.
-#     with pytest.raises(RuntimeError):
-#         monitor.end_window("test2")
+    monitor.begin_window("test1")
 
-#     monitor.end_window("test1")
+    # Creating a new window with the same key is invalid.
+    with pytest.raises(RuntimeError):
+        monitor.begin_window("test1")
 
-#     # Now, starting a window with key of "test1" is valid.
-#     monitor.begin_window("test1")
+    # Ending a window that was never started is invalid.
+    with pytest.raises(RuntimeError):
+        monitor.end_window("test2")
+
+    monitor.end_window("test1")
+
+    # Now, starting a window with key of "test1" is valid.
+    monitor.begin_window("test1")
 
 
-# def test_cumulative_energy():
-#     """Verify that cumulative metrics are sensibly produced."""
-#     monitor = AppleEnergyMonitor()
+def test_cumulative_energy():
+    """Verify that cumulative metrics are sensibly produced."""
+    mocker = Mocker()
+    monitor = AppleEnergyMonitor()
 
-#     res1 = monitor.get_cumulative_energy()
-#     assert isinstance(res1, AppleEnergyMetrics)
-#     assert res1.cpu_total_mj is not None
-#     assert res1.gpu_mj is not None
+    mocker.push_back_sample(
+        {
+            "CPU Energy": (100, "J"),
+            "GPU Energy": (100, "kJ"),
+        }
+    )
+    mocker.push_back_sample(
+        {
+            "CPU Energy": (100, "J"),
+            "GPU Energy": (100, "kJ"),
+        }
+    )
 
-#     dummy_work(2000)
-
-#     res2 = monitor.get_cumulative_energy()
-#     assert isinstance(res2, AppleEnergyMetrics)
-#     assert res2.cpu_total_mj is not None
-#     assert res2.gpu_mj is not None
-
-#     assert res2.cpu_total_mj > res1.cpu_total_mj
-#     assert res2.gpu_mj >= res1.gpu_mj
+    res1 = monitor.get_cumulative_energy()
+    assert isinstance(res1, AppleEnergyMetrics)
+    assert res1.cpu_total_mj == 100000
+    assert res1.gpu_mj == 100000000
