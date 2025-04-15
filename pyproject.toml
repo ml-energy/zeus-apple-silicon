@@ -40,6 +40,10 @@ build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
 
 [tool.cibuildwheel]
+skip = [
+  "cp36-*", "cp37-*", "cp38-*",
+  "pp36-*", "pp37-*", "pp38-*",
+]
 build-verbosity = 1
 
 [tool.cibuildwheel.macos.environment]
