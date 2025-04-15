@@ -1,10 +1,10 @@
 /*
-This file declares and defines bindings for classes and functions in `/apple_energy/energy.hpp`
--- i.e., `AppleEnergyMetrics` and `AppleEnergyMonitor`.
+This file declares and defines bindings for classes and functions in
+`/apple_energy/apple_energy.hpp` -- i.e., `AppleEnergyMetrics` and `AppleEnergyMonitor`.
 
-The reason the bindings in here are defined outside `zeus_ext.cpp` is because these bindings
-are also used in `/tests/mocker/mocker_ext.cpp` to generate an extension for a mocker class
-used in testing.
+The reason the bindings in here are declared outside `zeus_ext.cpp` is because these bindings
+are also used in `/tests/mocker/mocked_zeus_ext.cpp` to generate an extension for a mocked
+energy monitor class used in testing.
 */
 
 #pragma once

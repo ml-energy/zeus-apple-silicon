@@ -47,7 +47,7 @@ CFStringRef IOReportChannelGetUnitLabel(CFDictionaryRef item);
 Represents a single parsed measurement reported by `AppleEnergyMonitor`.
 
 If a field could not be observed/detected on the current device,
-it will be left as an empty `std::optional<int64_t>` object.
+it will be left as an empty `std::optional` object.
 
 Units are in mJ.
 */
@@ -58,6 +58,8 @@ struct AppleEnergyMetrics {
     std::optional<std::vector<int64_t>> performance_cores_mj;
     std::optional<int64_t> efficiency_core_manager_mj;
     std::optional<int64_t> performance_core_manager_mj;
+
+    // DRAM
     std::optional<int64_t> dram_mj;
 
     // GPU related metrics
@@ -152,7 +154,7 @@ private:
             &updatedChannels, 0, nullptr);
 
         if (subscription == nullptr) {
-            std::cerr << "Failed to create subscription" << '\n';
+            throw std::runtime_error("Failed to create IOReport subscription.");
         }
     }
 
