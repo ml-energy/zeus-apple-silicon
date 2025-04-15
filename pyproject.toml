@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "zeus-apple-silicon"
-version = "0.0.2"
+version = "0.0.3"
 description = "A library for programmatic, in-code energy measurement on Apple Silicon."
 readme = "README.md"
 authors = [
@@ -37,13 +37,8 @@ dev = ["zeus-apple-silicon[lint,test]"]
 wheel.packages = ["zeus_apple_silicon"]
 minimum-version = "0.4"
 build-dir = "build/{wheel_tag}"
-wheel.py-api = "cp312"
 
 [tool.cibuildwheel]
-skip = [
-  "cp36-*", "cp37-*", "cp38-*",
-  "pp36-*", "pp37-*", "pp38-*",
-]
 build-verbosity = 1
 
 [tool.cibuildwheel.macos.environment]
