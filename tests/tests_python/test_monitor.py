@@ -132,3 +132,53 @@ def test_cumulative_energy():
     assert isinstance(res1, AppleEnergyMetrics)
     assert res1.cpu_total_mj == 100000
     assert res1.gpu_mj == 100000000
+
+
+def test_all_fields():
+    mocker = Mocker()
+    mocker.push_back_sample(
+        {
+            "CPU Energy": (10000000, "mJ"),
+            "GPU Energy": (1000000, "nJ"),
+            "ECPU0": (10000, "mJ"),
+            "ECPU1": (10000, "mJ"),
+            "ECPM": (10000, "mJ"),
+            "PCPU0": (10000, "mJ"),
+            "PCPU1": (10000, "mJ"),
+            "PCPM": (10000, "mJ"),
+            "DRAM": (10000, "mJ"),
+            "GPU SRAM": (10000, "mJ"),
+            "ANE": (10000, "mJ"),
+        }
+    )
+    mocker.push_back_sample(
+        {
+            "CPU Energy": (30000000, "mJ"),
+            "GPU Energy": (3000000, "nJ"),
+            "ECPU0": (10001, "mJ"),
+            "ECPU1": (10001, "mJ"),
+            "ECPM": (10002, "mJ"),
+            "PCPU0": (10003, "mJ"),
+            "PCPU1": (10003, "mJ"),
+            "PCPM": (10004, "mJ"),
+            "DRAM": (10005, "mJ"),
+            "GPU SRAM": (10006, "mJ"),
+            "ANE": (10007, "mJ"),
+        }
+    )
+
+    mon = AppleEnergyMonitor()
+
+    mon.begin_window("test")
+    res = mon.end_window("test")
+
+    assert isinstance(res, AppleEnergyMetrics)
+    assert res.cpu_total_mj == 20000000
+    assert res.gpu_mj == 2
+    assert res.efficiency_cores_mj == [1, 1]
+    assert res.efficiency_core_manager_mj == 2
+    assert res.performance_cores_mj == [3, 3]
+    assert res.performance_core_manager_mj == 4
+    assert res.dram_mj == 5
+    assert res.gpu_sram_mj == 6
+    assert res.ane_mj == 7
