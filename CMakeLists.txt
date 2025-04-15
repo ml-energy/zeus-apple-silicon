@@ -49,16 +49,16 @@ find_package(nanobind CONFIG REQUIRED)
 set(APPLE_ENERGY_DIR ${PROJECT_SOURCE_DIR}/apple_energy)
 
 # Define where the `energy_bindings.hpp` shared bindings header file is located.
-set(ENERGY_BINDINGS_DIR ${PROJECT_SOURCE_DIR}/zeus_apple_silicon/cpp)
+set(ENERGY_BINDINGS_DIR ${PROJECT_SOURCE_DIR}/bindings)
 
 if (SKBUILD)
     message(STATUS "Building as scikit-build; only compiling bindings.")
-    add_subdirectory(zeus_apple_silicon/cpp)
+    add_subdirectory(bindings)
     # Install directive for scikit-build-core
     install(TARGETS zeus_ext LIBRARY DESTINATION zeus_apple_silicon)
 else()
     message(STATUS "Building normally (not as scikit-build).")
-    add_subdirectory(zeus_apple_silicon/cpp)
+    add_subdirectory(bindings)
     add_subdirectory(tests)
     add_subdirectory(examples)
 endif()

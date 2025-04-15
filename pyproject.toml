@@ -34,7 +34,7 @@ test = ["pytest"]
 dev = ["zeus-apple-silicon[lint,test]"]
 
 [tool.scikit-build]
-wheel.packages = ["zeus_apple_silicon"]
+wheel.packages = ["bindings/zeus_apple_silicon"]
 minimum-version = "0.4"
 build-dir = "build/{wheel_tag}"
 
