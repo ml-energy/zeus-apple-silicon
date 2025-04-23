@@ -4,7 +4,8 @@
 #include <optional>
 #include <vector>
 
-void print_vector(const std::string& label, const std::optional<std::vector<int64_t>>& vec_opt) {
+void print_vector(const std::string& label, const std::optional<std::vector<int64_t>>& vec_opt)
+{
     if (vec_opt) {
         std::cout << label << ": [ ";
         for (int i = 0; i < vec_opt->size(); ++i) {
@@ -17,16 +18,17 @@ void print_vector(const std::string& label, const std::optional<std::vector<int6
     }
 }
 
-void print_metric(const std::string& label, const std::optional<int64_t>& value) {
+void print_metric(const std::string& label, const std::optional<int64_t>& value)
+{
     if (value) {
         std::cout << label << ": " << *value << " mJ\n";
-    }
-    else {
+    } else {
         std::cout << label << ": unavailable\n";
     }
 }
 
-void print_apple_energy_metrics(const AppleEnergyMetrics& metrics) {
+void print_apple_energy_metrics(const AppleEnergyMetrics& metrics)
+{
     std::cout << "--- Apple Energy Metrics ---\n";
 
     print_metric("CPU Total", metrics.cpu_total_mj);

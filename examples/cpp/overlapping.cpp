@@ -1,6 +1,6 @@
-#include <iostream>
 #include "apple_energy.hpp"
 #include "print_metrics.hpp"
+#include <iostream>
 
 uint64_t dummy_work(uint64_t limit)
 {

@@ -21,7 +21,6 @@ void one_interval()
     AppleEnergyMetrics metrics = monitor.end_window("test");
 
     print_apple_energy_metrics(metrics);
-
 }
 
 int main()
