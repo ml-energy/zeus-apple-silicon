@@ -39,6 +39,7 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Detect the installed nanobind package and import it into CMake.
+# Install nanobind with `python -m pip install nanobind`.
 execute_process(
     COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT
@@ -60,5 +61,5 @@ else()
     message(STATUS "Building normally (not as scikit-build).")
     add_subdirectory(bindings)
     add_subdirectory(tests)
-    add_subdirectory(examples)
+    add_subdirectory(examples/cpp)
 endif()
