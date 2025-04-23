@@ -1,4 +1,4 @@
-name: (zeus-apple-silicon) Check format, lint, and test
+name: Check format, lint, and test
 
 on:
   pull_request:
