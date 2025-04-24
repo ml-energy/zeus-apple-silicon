@@ -212,13 +212,13 @@ private:
             } else if (is_cpu_manager(channel_name, 'P')) {
                 result.performance_core_manager_mj = result.performance_core_manager_mj.value_or(0) + energy;
             } else if (channel_name.find("DRAM") != std::string::npos) {
-                result.dram_mj = energy;
+                result.dram_mj = result.dram_mj.value_or(0) + energy;
             } else if (channel_name.find("GPU Energy") != std::string::npos) {
                 result.gpu_mj = energy;
             } else if (channel_name.find("GPU SRAM") != std::string::npos) {
-                result.gpu_sram_mj = energy;
+                result.gpu_sram_mj = result.gpu_sram_mj.value_or(0) + energy;
             } else if (channel_name.find("ANE") != std::string::npos) {
-                result.ane_mj = energy;
+                result.ane_mj = result.ane_mj.value_or(0) + energy;
             }
         }
 
