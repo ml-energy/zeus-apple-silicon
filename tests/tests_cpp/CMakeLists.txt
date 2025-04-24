@@ -18,4 +18,3 @@ target_include_directories(test_monitor PUBLIC
 
 # Ensure assert statements work by building in debug.
 target_compile_options(test_monitor PRIVATE -O0 -g)
-target_compile_definitions(test_monitor PRIVATE DEBUG)

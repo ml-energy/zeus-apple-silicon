@@ -2,7 +2,7 @@
 
 set -ev
 
-cmake -S . -B build --fresh
+cmake -S . -B build --fresh -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 
 # C++ tests
