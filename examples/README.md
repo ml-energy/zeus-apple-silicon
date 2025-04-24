@@ -2,6 +2,22 @@
 
 This directory contains examples of how to use the Apple Energy Monitor.
 
+## Python Examples: `examples/python` directory
+
+To run examples in this directory, you need to install `zeus-apple-silicon`.
+
+It is recommended that you do this in a virtual environment, which you can set up from your terminal by running:
+
+`python3 -m venv env && source env/bin/activate`
+
+Then, install `zeus-apple-silicon` by running:
+
+`pip install zeus-apple-silicon`
+
+Finally, you can execute the examples. For example:
+
+`python3 ./examples/python/simple_example.py`
+
 ## C++ Examples: `examples/cpp` directory
 
 To compile these programs manually, run:
