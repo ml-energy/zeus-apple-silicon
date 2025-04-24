@@ -50,21 +50,25 @@ from zeus_apple_silicon import AppleEnergyMonitor, AppleEnergyMetrics
 
 The library operates by defining measurement windows. You mark the beginning and end of a code section you want to measure.
 
-1.  Start a measurement window: Use `AppleEnergyMonitor::begin_window(label)` to start measuring energy consumption. Each window needs a string label passed in as an argument.
-2.  Execute Code: Run the code you want to profile.
-3.  End & Retrieve: Use `AppleEnergyMonitor::end_window(label)` with the *same label* that started the window to stop measurement for that window. This function returns an `AppleEnergyMetrics` object containing energy data collected during the window.
+1.  **Start a measurement window**: use `AppleEnergyMonitor::begin_window(label)` to indicate you want energy measurement to *start* at that line of code. Each window needs a string label passed in as an argument.
+2.  **The code being measured**: The start of the window should be followed by the code you want to measure energy for.
+3.  **End & Retrieve Results**: indicate where you want your measurement window to *end* by using `AppleEnergyMonitor::end_window(label)` with the *same label* you used to mark the window's start. The `AppleEnergyMonitor::end_window(label)` function returns an `AppleEnergyMetrics` object containing energy data collected during the window.
 
-**Things to Note:**
+**Note about Measurement Windows:**
 
 *   You can have multiple windows active simultaneously (i.e., they can overlap), as long as each uses a distinct label.
 *   Non-overlapping windows can re-use names. I.e., once a window is ended with `end_window`, its label is free to be reused.
 *   Attempting to start a window with a label still currently in use (i.e., `end_window` not yet called for that label) will raise an exception.
 *   Calling `end_window` with a label that doesn't belong to any currently active window will raise an exception.
 
+**Note about Results of Measurements:**
+*   Results are reported via an `AppleEnergyMetrics` struct, but depending on your processor, some metrics may not be available (e.g., DRAM may not be available on older machines). In such cases, fields that could not be measured will be presented as: `None` in Python, and an empty `std::optional` object in C++.
+*   A more detailed explanation of results is provided [later in this readme](#structclass-appleenergymetrics).
 
 ## Usage Examples
 
 The API is identical in C++ and Python.
+For available fields of a result object, read [this section of the readme](#structclass-appleenergymetrics).
 
 ### C++ Example
 
@@ -76,7 +80,7 @@ int main() {
     AppleEnergyMonitor monitor;
 
     // --- Basic Measurement ---
-    monitor.begin_window("task_1");
+    monitor.begin_window("task_1"); // Indicating the measurement window starts here.
 
     // Do some work...
 
@@ -108,7 +112,7 @@ from zeus_apple_silicon import AppleEnergyMonitor, AppleEnergyMetrics
 monitor = AppleEnergyMonitor()
 
 # --- Basic Measurement ---
-monitor.begin_window("task_1")
+monitor.begin_window("task_1") # Indicating the measurement window starts here.
 
 # Do some work...
 
