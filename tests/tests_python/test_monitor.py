@@ -182,3 +182,48 @@ def test_all_fields():
     assert res.dram_mj == 5
     assert res.gpu_sram_mj == 6
     assert res.ane_mj == 7
+
+
+def test_some_fields_none():
+    mocker = Mocker()
+    mocker.push_back_sample(
+        {
+            "CPU Energy": (0, "mJ"),
+            "GPU Dummy": (0, "nJ"),
+            "EC0": (0, "mJ"),
+            "EC1": (0, "mJ"),
+            "ECPM": (0, "mJ"),
+            "PCPU0": (0, "mJ"),
+            "PCPU1": (0, "mJ"),
+            "PCPM": (0, "mJ"),
+            "GPU SRAM": (0, "mJ"),
+        }
+    )
+    mocker.push_back_sample(
+        {
+            "CPU Energy": (10000000, "mJ"),
+            "GPU Dummy": (1000000, "nJ"),
+            "EC0": (10000, "mJ"),
+            "EC1": (10000, "mJ"),
+            "ECPM": (10000, "mJ"),
+            "PCPU0": (90000, "mJ"),
+            "PC1": (10000, "mJ"),
+            "PCPM": (10000, "mJ"),
+            "GPU SRAM": (10000, "mJ"),
+        }
+    )
+
+    mon = AppleEnergyMonitor()
+    mon.begin_window("test")
+    res = mon.end_window("test")
+
+    assert isinstance(res, AppleEnergyMetrics)
+    assert res.cpu_total_mj == 10000000
+    assert res.gpu_mj is None
+    assert res.efficiency_cores_mj is None
+    assert res.efficiency_core_manager_mj == 10000
+    assert res.performance_cores_mj == [90000]
+    assert res.performance_core_manager_mj == 10000
+    assert res.dram_mj is None
+    assert res.gpu_sram_mj == 10000
+    assert res.ane_mj is None
