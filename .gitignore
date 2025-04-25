@@ -1,0 +1,14 @@
+# C++
+build/
+
+# Python
+dist/
+.env
+env/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# IDEs
+.vscode/
+**/.DS_Store
