@@ -60,6 +60,8 @@ jobs:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: github.repository_owner == 'ml-energy'
+    permissions:
+      id-token: write
 
     steps:
     - uses: actions/setup-python@v5
@@ -71,7 +73,5 @@ jobs:
 
     - uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
-        password: ${{ secrets.pypi_password }}
         repository-url: https://upload.pypi.org/legacy/
         verbose: true
