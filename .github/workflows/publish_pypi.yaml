@@ -15,8 +15,11 @@ jobs:
       with:
         submodules: true
 
-    - name: Build SDist
-      run: pipx run build --sdist
+    - name: Install updated build backend
+      run: python -m pip install --upgrade build
+
+    - name: Build SDist (PEP 625 compliant)
+      run: python -m build --sdist
 
     - name: Check metadata
       run: pipx run twine check dist/*
