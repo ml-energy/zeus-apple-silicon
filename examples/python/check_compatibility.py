@@ -126,21 +126,9 @@ def main() -> None:
         return
     print("OK")
 
-    # ---- Raw IOReport channels ----
-    print("\n" + "-" * 60)
-    print("Raw IOReport energy channels on this chip:")
-    raw_channels = monitor.get_raw_channels()
-    if raw_channels:
-        max_name_len = max(len(name) for name, _, _ in raw_channels)
-        for name, value, unit in raw_channels:
-            print(f"  {name:<{max_name_len}}  {value:>20} {unit}")
-    else:
-        print("  (no channels found)")
-    print(f"\nTotal channels: {len(raw_channels)}")
-
     # ---- Cumulative energy snapshot ----
     print("\n" + "-" * 60)
-    print("Reading cumulative energy snapshot (parsed)...")
+    print("Reading cumulative energy snapshot...")
     cumulative = monitor.get_cumulative_energy()
     print_metrics("Cumulative energy (system-wide since boot)", cumulative)
 

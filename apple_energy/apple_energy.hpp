@@ -4,7 +4,6 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -132,14 +131,6 @@ public:
         return result;
     }
 
-    std::vector<std::tuple<std::string, int64_t, std::string>> get_raw_channels()
-    {
-        CFDictionaryRef sample = IOReportCreateSamples(subscription, channels_dict_mutable, nullptr);
-        auto result = extract_raw_channels(sample);
-        CFRelease(sample);
-        return result;
-    }
-
 private:
     std::unordered_map<std::string, CFDictionaryRef> begin_samples;
 
@@ -234,40 +225,6 @@ private:
             } else if (channel_name.find("ANE") != std::string::npos) {
                 result.ane_mj = result.ane_mj.value_or(0) + energy;
             }
-        }
-
-        return result;
-    }
-
-    std::vector<std::tuple<std::string, int64_t, std::string>>
-    extract_raw_channels(CFDictionaryRef sample)
-    {
-        std::vector<std::tuple<std::string, int64_t, std::string>> result;
-
-        CFStringRef key_str = CFStringCreateWithCString(nullptr, "IOReportChannels",
-            kCFStringEncodingUTF8);
-        const void* channels_value = CFDictionaryGetValue(sample, key_str);
-        CFRelease(key_str);
-
-        if (channels_value == nullptr) {
-            return result;
-        }
-
-        CFArrayRef channels_array = static_cast<CFArrayRef>(channels_value);
-        CFIndex array_count = CFArrayGetCount(channels_array);
-
-        for (CFIndex i = 0; i < array_count; i++) {
-            const void* item_ptr = CFArrayGetValueAtIndex(channels_array, i);
-            CFDictionaryRef item = static_cast<CFDictionaryRef>(item_ptr);
-
-            CFStringRef cf_channel_name = IOReportChannelGetChannelName(item);
-            CFStringRef cf_unit = IOReportChannelGetUnitLabel(item);
-
-            std::string channel_name = to_std_string(cf_channel_name);
-            int64_t raw_value = IOReportSimpleGetIntegerValue(item, 0);
-            std::string unit = to_std_string(cf_unit);
-
-            result.emplace_back(channel_name, raw_value, unit);
         }
 
         return result;
