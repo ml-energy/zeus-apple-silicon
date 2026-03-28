@@ -9,7 +9,7 @@
 #include <vector>
 
 /* ----- Variables and functions for mock data input configuration ----- */
-static std::vector<const std::unordered_map<std::string, std::pair<int64_t, std::string>>> sample_data;
+static std::vector<std::unordered_map<std::string, std::pair<int64_t, std::string>>> sample_data;
 static uint64_t mock_sample_index = 0;
 
 Mocker::Mocker()

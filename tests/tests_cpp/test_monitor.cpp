@@ -554,6 +554,188 @@ void test_m4_pro_example()
     std::cout << "  > test_m4_pro_example passed.\n";
 }
 
+void test_restart_window()
+{
+    std::cout << "* Running test_restart_window\n";
+    Mocker mocker;
+
+    // Sample for first begin_window
+    mocker.push_back_sample({
+        { "CPU Energy", { 10000000, "mJ" } },
+        { "GPU Energy", { 1000000, "nJ" } },
+    });
+    // Sample for restarted begin_window
+    mocker.push_back_sample({
+        { "CPU Energy", { 20000000, "mJ" } },
+        { "GPU Energy", { 2000000, "nJ" } },
+    });
+    // Sample for end_window
+    mocker.push_back_sample({
+        { "CPU Energy", { 50000000, "mJ" } },
+        { "GPU Energy", { 5000000, "nJ" } },
+    });
+
+    AppleEnergyMonitor monitor;
+
+    monitor.begin_window("test");
+
+    // Without restart, should throw.
+    bool threw = false;
+    try {
+        monitor.begin_window("test");
+    } catch (const std::runtime_error&) {
+        threw = true;
+    }
+    assert(threw);
+
+    // With restart=true, should succeed.
+    monitor.begin_window("test", true);
+
+    AppleEnergyMetrics result = monitor.end_window("test");
+    // Delta is from the restarted sample (20M) to end sample (50M).
+    assert(result.cpu_total_mj.value() == 30000000);
+    assert(result.gpu_mj.value() == 3);
+
+    // restart=true on a non-existent window should just start normally.
+    mocker.push_back_sample({
+        { "CPU Energy", { 0, "mJ" } },
+        { "GPU Energy", { 0, "nJ" } },
+    });
+    mocker.push_back_sample({
+        { "CPU Energy", { 100, "mJ" } },
+        { "GPU Energy", { 1000000, "nJ" } },
+    });
+    monitor.begin_window("new_key", true);
+    AppleEnergyMetrics result2 = monitor.end_window("new_key");
+    assert(result2.cpu_total_mj.value() == 100);
+
+    std::cout << "  > test_restart_window passed.\n";
+}
+
+void test_m5_max_example()
+{
+    std::cout << "* Running test_m5_max_example\n";
+    Mocker mocker;
+
+    // M5 Max: 12 E-cores (2 clusters of 6), 6 P-cores, new naming scheme.
+    std::unordered_map<std::string, std::pair<int64_t, std::string>> data1 = {
+        // E-core cluster 0 (individual cores)
+        { "MCPU0_0", { 0, "mJ" } },
+        { "MCPU0_1", { 0, "mJ" } },
+        { "MCPU0_2", { 0, "mJ" } },
+        { "MCPU0_3", { 0, "mJ" } },
+        { "MCPU0_4", { 0, "mJ" } },
+        { "MCPU0_5", { 0, "mJ" } },
+        // E-core cluster 1 (individual cores)
+        { "MCPU1_0", { 0, "mJ" } },
+        { "MCPU1_1", { 0, "mJ" } },
+        { "MCPU1_2", { 0, "mJ" } },
+        { "MCPU1_3", { 0, "mJ" } },
+        { "MCPU1_4", { 0, "mJ" } },
+        { "MCPU1_5", { 0, "mJ" } },
+        // P-cores
+        { "PACC_0", { 0, "mJ" } },
+        { "PACC_1", { 0, "mJ" } },
+        { "PACC_2", { 0, "mJ" } },
+        { "PACC_3", { 0, "mJ" } },
+        { "PACC_4", { 0, "mJ" } },
+        { "PACC_5", { 0, "mJ" } },
+        // E-core managers
+        { "MCPM0", { 0, "mJ" } },
+        { "MCPM1", { 0, "mJ" } },
+        // P-core manager
+        { "PCPM", { 0, "mJ" } },
+        // E-core cluster totals (should NOT be parsed as individual cores)
+        { "MCPU0", { 0, "mJ" } },
+        { "MCPU1", { 0, "mJ" } },
+        // P-core cluster total (should NOT be parsed as individual core)
+        { "PCPU", { 0, "mJ" } },
+        // SRAM channels (should NOT be parsed as cores)
+        { "MCPU0_0_SRAM", { 0, "mJ" } },
+        { "PCPU0_SRAM", { 0, "mJ" } },
+        // DTL channels (should NOT be parsed as cores)
+        { "MCPU0DTL00", { 0, "mJ" } },
+        { "PCPUDTL00", { 0, "mJ" } },
+        // System channels
+        { "CPU Energy", { 0, "mJ" } },
+        { "DRAM", { 0, "mJ" } },
+        { "GPU Energy", { 0, "nJ" } },
+        { "ANE", { 0, "mJ" } },
+    };
+    mocker.push_back_sample(data1);
+
+    std::unordered_map<std::string, std::pair<int64_t, std::string>> data2 = {
+        { "MCPU0_0", { 100, "mJ" } },
+        { "MCPU0_1", { 90, "mJ" } },
+        { "MCPU0_2", { 80, "mJ" } },
+        { "MCPU0_3", { 70, "mJ" } },
+        { "MCPU0_4", { 60, "mJ" } },
+        { "MCPU0_5", { 50, "mJ" } },
+        { "MCPU1_0", { 95, "mJ" } },
+        { "MCPU1_1", { 85, "mJ" } },
+        { "MCPU1_2", { 75, "mJ" } },
+        { "MCPU1_3", { 65, "mJ" } },
+        { "MCPU1_4", { 55, "mJ" } },
+        { "MCPU1_5", { 45, "mJ" } },
+        { "PACC_0", { 500, "mJ" } },
+        { "PACC_1", { 400, "mJ" } },
+        { "PACC_2", { 300, "mJ" } },
+        { "PACC_3", { 250, "mJ" } },
+        { "PACC_4", { 200, "mJ" } },
+        { "PACC_5", { 150, "mJ" } },
+        { "MCPM0", { 30, "mJ" } },
+        { "MCPM1", { 25, "mJ" } },
+        { "PCPM", { 40, "mJ" } },
+        { "MCPU0", { 9999, "mJ" } },
+        { "MCPU1", { 8888, "mJ" } },
+        { "PCPU", { 7777, "mJ" } },
+        { "MCPU0_0_SRAM", { 10, "mJ" } },
+        { "PCPU0_SRAM", { 20, "mJ" } },
+        { "MCPU0DTL00", { 5, "mJ" } },
+        { "PCPUDTL00", { 6, "mJ" } },
+        { "CPU Energy", { 2000, "mJ" } },
+        { "DRAM", { 100, "mJ" } },
+        { "GPU Energy", { 5000000, "nJ" } },
+        { "ANE", { 10, "mJ" } },
+    };
+    mocker.push_back_sample(data2);
+
+    AppleEnergyMonitor monitor;
+
+    monitor.begin_window("test");
+    AppleEnergyMetrics result = monitor.end_window("test");
+
+    assert(result.cpu_total_mj.value() == 2000);
+
+    // 12 E-cores total (two clusters of 6).
+    assert(result.efficiency_cores_mj);
+    assert(result.efficiency_cores_mj->size() == 12);
+    // Sort to check values regardless of order.
+    std::vector<int64_t> ecores = result.efficiency_cores_mj.value();
+    std::sort(ecores.begin(), ecores.end());
+    std::vector<int64_t> ecores_expected = { 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 };
+    assert(ecores == ecores_expected);
+
+    // 6 P-cores.
+    assert(result.performance_cores_mj);
+    assert(result.performance_cores_mj->size() == 6);
+    std::vector<int64_t> pcores = result.performance_cores_mj.value();
+    std::sort(pcores.begin(), pcores.end());
+    std::vector<int64_t> pcores_expected = { 150, 200, 250, 300, 400, 500 };
+    assert(pcores == pcores_expected);
+
+    // E-core manager: sum of MCPM0 + MCPM1 = 55.
+    assert(result.efficiency_core_manager_mj.value() == 55);
+    // P-core manager: PCPM = 40.
+    assert(result.performance_core_manager_mj.value() == 40);
+
+    assert(result.dram_mj.value() == 100);
+    assert(result.gpu_mj.value() == 5);
+    assert(result.ane_mj.value() == 10);
+
+    std::cout << "  > test_m5_max_example passed.\n";
+}
+
 int main()
 {
     std::cout << "--- Starting tests ---\n";
@@ -564,6 +746,8 @@ int main()
     test_m3_pro_example();
     test_m4_example();
     test_m4_pro_example();
+    test_restart_window();
+    test_m5_max_example();
 
     std::cout << "--- All tests passed ---\n";
 }

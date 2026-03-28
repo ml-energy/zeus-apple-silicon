@@ -16,6 +16,7 @@ energy monitor class used in testing.
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
 #include <nanobind/stl/vector.h>
 
 namespace nb = nanobind;
@@ -100,6 +101,7 @@ void register_monitor(nb::module_& m)
     nb::class_<AppleEnergyMonitor>(m, "AppleEnergyMonitor")
         .def(nb::init<>())
         .def("get_cumulative_energy", &AppleEnergyMonitor::get_cumulative_energy)
-        .def("begin_window", &AppleEnergyMonitor::begin_window, "key"_a)
-        .def("end_window", &AppleEnergyMonitor::end_window, "key"_a);
+        .def("begin_window", &AppleEnergyMonitor::begin_window, "key"_a, "restart"_a = false)
+        .def("end_window", &AppleEnergyMonitor::end_window, "key"_a)
+        .def("get_raw_channels", &AppleEnergyMonitor::get_raw_channels);
 }

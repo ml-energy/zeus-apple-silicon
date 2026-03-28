@@ -4,6 +4,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -84,11 +85,16 @@ public:
         }
     }
 
-    void begin_window(const std::string& key)
+    void begin_window(const std::string& key, bool restart = false)
     {
-        if (begin_samples.find(key) != begin_samples.end()) {
-            throw std::runtime_error(
-                "Measurement with specified key already exists.");
+        auto it = begin_samples.find(key);
+        if (it != begin_samples.end()) {
+            if (!restart) {
+                throw std::runtime_error(
+                    "Measurement with specified key already exists.");
+            }
+            CFRelease(it->second);
+            begin_samples.erase(it);
         }
         begin_samples[key] = IOReportCreateSamples(subscription, channels_dict_mutable, nullptr);
     }
@@ -122,6 +128,14 @@ public:
     {
         CFDictionaryRef sample = IOReportCreateSamples(subscription, channels_dict_mutable, nullptr);
         AppleEnergyMetrics result = parse_sample(sample);
+        CFRelease(sample);
+        return result;
+    }
+
+    std::vector<std::tuple<std::string, int64_t, std::string>> get_raw_channels()
+    {
+        CFDictionaryRef sample = IOReportCreateSamples(subscription, channels_dict_mutable, nullptr);
+        auto result = extract_raw_channels(sample);
         CFRelease(sample);
         return result;
     }
@@ -197,19 +211,19 @@ private:
 
             if (channel_name.find("CPU Energy") != std::string::npos) {
                 result.cpu_total_mj = energy;
-            } else if (is_cpu_core(channel_name, 'E')) {
+            } else if (is_efficiency_core(channel_name)) {
                 if (!result.efficiency_cores_mj) {
                     result.efficiency_cores_mj = std::vector<int64_t>();
                 }
                 result.efficiency_cores_mj->push_back(energy);
-            } else if (is_cpu_core(channel_name, 'P')) {
+            } else if (is_performance_core(channel_name)) {
                 if (!result.performance_cores_mj) {
                     result.performance_cores_mj = std::vector<int64_t>();
                 }
                 result.performance_cores_mj->push_back(energy);
-            } else if (is_cpu_manager(channel_name, 'E')) {
+            } else if (is_efficiency_manager(channel_name)) {
                 result.efficiency_core_manager_mj = result.efficiency_core_manager_mj.value_or(0) + energy;
-            } else if (is_cpu_manager(channel_name, 'P')) {
+            } else if (is_performance_manager(channel_name)) {
                 result.performance_core_manager_mj = result.performance_core_manager_mj.value_or(0) + energy;
             } else if (channel_name.find("DRAM") != std::string::npos) {
                 result.dram_mj = result.dram_mj.value_or(0) + energy;
@@ -220,6 +234,40 @@ private:
             } else if (channel_name.find("ANE") != std::string::npos) {
                 result.ane_mj = result.ane_mj.value_or(0) + energy;
             }
+        }
+
+        return result;
+    }
+
+    std::vector<std::tuple<std::string, int64_t, std::string>>
+    extract_raw_channels(CFDictionaryRef sample)
+    {
+        std::vector<std::tuple<std::string, int64_t, std::string>> result;
+
+        CFStringRef key_str = CFStringCreateWithCString(nullptr, "IOReportChannels",
+            kCFStringEncodingUTF8);
+        const void* channels_value = CFDictionaryGetValue(sample, key_str);
+        CFRelease(key_str);
+
+        if (channels_value == nullptr) {
+            return result;
+        }
+
+        CFArrayRef channels_array = static_cast<CFArrayRef>(channels_value);
+        CFIndex array_count = CFArrayGetCount(channels_array);
+
+        for (CFIndex i = 0; i < array_count; i++) {
+            const void* item_ptr = CFArrayGetValueAtIndex(channels_array, i);
+            CFDictionaryRef item = static_cast<CFDictionaryRef>(item_ptr);
+
+            CFStringRef cf_channel_name = IOReportChannelGetChannelName(item);
+            CFStringRef cf_unit = IOReportChannelGetUnitLabel(item);
+
+            std::string channel_name = to_std_string(cf_channel_name);
+            int64_t raw_value = IOReportSimpleGetIntegerValue(item, 0);
+            std::string unit = to_std_string(cf_unit);
+
+            result.emplace_back(channel_name, raw_value, unit);
         }
 
         return result;
@@ -236,50 +284,97 @@ private:
         throw std::runtime_error("Failed to convert CFString to std::string");
     }
 
-    // Checks if a string starts with `core_type` and ends with "CPU" followed by
-    // a number.
-    bool is_cpu_core(const std::string& s, char core_type)
+    // Checks if a channel name represents an individual CPU core energy reading.
+    //
+    // Efficiency core patterns:
+    //   M1-M4:  ECPU0, ECPU1, EACC_CPU0, EACC_CPU1, ...
+    //   M5:     MCPU0_0, MCPU0_1, MCPU1_0, ...
+    //
+    // Performance core patterns:
+    //   M1-M4:  PCPU0, PCPU1, PACC0_CPU0, PACC1_CPU0, ...
+    //   M5:     PACC_0, PACC_1, ...
+    bool is_efficiency_core(const std::string& s)
     {
-        // 1) Check first character.
-        if (s.empty() || s[0] != core_type) {
-            return false;
+        // M1-M4: starts with 'E', contains "CPU" followed by digits.
+        // e.g., ECPU0, EACC_CPU0
+        if (!s.empty() && s[0] == 'E') {
+            return matches_cpu_digit_suffix(s);
         }
+        // M5: "MCPUx_y" where x and y are digits.
+        // Must not match cluster totals like "MCPU0" (no underscore)
+        // or SRAM/DTL channels.
+        if (s.size() >= 7 && s.substr(0, 4) == "MCPU"
+            && s.find("SRAM") == std::string::npos
+            && s.find("DTL") == std::string::npos) {
+            std::size_t underscore = s.rfind('_');
+            if (underscore != std::string::npos && underscore >= 4) {
+                return all_digits(s, underscore + 1);
+            }
+        }
+        return false;
+    }
 
-        // 2) Find the last occurrence of "CPU"
+    bool is_performance_core(const std::string& s)
+    {
+        // M1-M4: starts with 'P', contains "CPU", ends with digits.
+        if (!s.empty() && s[0] == 'P' && s.find("CPU") != std::string::npos) {
+            return matches_cpu_digit_suffix(s);
+        }
+        // M5: "PACC_y" where y is a digit. Must end with digits after underscore.
+        if (s.size() >= 6 && s.substr(0, 5) == "PACC_") {
+            return all_digits(s, 5);
+        }
+        return false;
+    }
+
+    bool is_efficiency_manager(const std::string& s)
+    {
+        // M1-M4: starts with 'E', ends with "CPM" (e.g., ECPM, EACC_CPM).
+        if (!s.empty() && s[0] == 'E' && ends_with(s, "CPM")) {
+            return true;
+        }
+        // M5: "MCPMx" where x is a digit (e.g., MCPM0, MCPM1).
+        if (s.size() >= 5 && s.substr(0, 4) == "MCPM") {
+            return all_digits(s, 4);
+        }
+        return false;
+    }
+
+    bool is_performance_manager(const std::string& s)
+    {
+        // All generations: starts with 'P', ends with "CPM"
+        // (e.g., PCPM, PACC0_CPM, PACC1_CPM).
+        return !s.empty() && s[0] == 'P' && ends_with(s, "CPM");
+    }
+
+    // Helper: checks if s contains "CPU" and everything after the last "CPU"
+    // consists of digits.
+    bool matches_cpu_digit_suffix(const std::string& s)
+    {
         std::size_t pos = s.rfind("CPU");
         if (pos == std::string::npos) {
             return false;
         }
+        std::size_t start = pos + 3;
+        return start < s.size() && all_digits(s, start);
+    }
 
-        // Ensure there's at least one character after "CPU" (for the number)
-        std::size_t startOfNumber = pos + 3;
-        if (startOfNumber >= s.size()) {
+    bool ends_with(const std::string& s, const std::string& suffix)
+    {
+        return s.size() >= suffix.size()
+            && s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+    }
+
+    bool all_digits(const std::string& s, std::size_t from)
+    {
+        if (from >= s.size()) {
             return false;
         }
-
-        // 3) Verify that all remaining characters are digits
-        for (std::size_t i = startOfNumber; i < s.size(); ++i) {
+        for (std::size_t i = from; i < s.size(); ++i) {
             if (!std::isdigit(static_cast<unsigned char>(s[i]))) {
                 return false;
             }
         }
-
-        return true;
-    }
-
-    // Checks if a string starts with `core_type` and ends with "CPM".
-    bool is_cpu_manager(const std::string& s, char core_type)
-    {
-        // 1) Check first character.
-        if (s.empty() || s[0] != core_type) {
-            return false;
-        }
-
-        // 2) Check if the string ends with "CPM".
-        if (s.size() < 3 || s.compare(s.size() - 3, 3, "CPM") != 0) {
-            return false;
-        }
-
         return true;
     }
 
