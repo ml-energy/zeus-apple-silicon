@@ -18,7 +18,7 @@ monitor.begin_window("prompt") # START an energy measurement window
 output = llm.create_chat_completion(
       messages = [
           {"role": "system", "content": "You are a helpful assistant."},
-          {"role": "user", "content": "What makes a good Python library? Answer concisely."}
+          {"role": "user", "content": "What makes a good Python library?"}
       ],
 )
 energy_metrics = monitor.end_window("prompt") # END measurement, get results
