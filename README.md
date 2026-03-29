@@ -185,11 +185,13 @@ IOReport energy values are believed to be model-based estimates derived from uti
 
 ## Adding Support for a New Apple Silicon Chip
 
-When a new Apple Silicon generation is released, the IOReport channel naming may change (as happened with the M5 generation). Follow these steps to verify compatibility and add support:
+When a new Apple Silicon generation is released, the IOReport channel naming may change (as happened with the M5 generation). Follow these steps to verify compatibility and add support.
 
 ### 1. Build and inspect raw channels
 
 ```bash
+pip install -e ".[dev]"
+
 cmake -S . -B build --fresh
 cmake --build build
 ./build/bin/dump_channels
@@ -200,7 +202,6 @@ The `dump_channels` tool prints every IOReport energy channel name, raw value, a
 ### 2. Run the Python compatibility checker
 
 ```bash
-pip install -e .
 python examples/python/check_compatibility.py
 ```
 
