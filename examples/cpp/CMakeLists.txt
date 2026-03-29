@@ -25,3 +25,10 @@ target_link_libraries(overlapping PRIVATE
     "-framework CoreFoundation"
 )
 target_include_directories(overlapping PUBLIC ${APPLE_ENERGY_DIR})
+
+# dump_channels.cpp
+add_executable(dump_channels dump_channels.cpp)
+target_link_libraries(dump_channels PRIVATE
+    IOReport
+    "-framework CoreFoundation"
+)

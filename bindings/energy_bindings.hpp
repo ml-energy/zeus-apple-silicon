@@ -50,6 +50,26 @@ std::string represent_metrics(const AppleEnergyMetrics& metrics)
         repr += "None (unavailable)\n";
     }
 
+    repr += "Efficiency cluster: ";
+    if (metrics.efficiency_cluster_mj) {
+        for (const auto& cluster : metrics.efficiency_cluster_mj.value()) {
+            repr += std::to_string(cluster) + " mJ  ";
+        }
+        repr += "\n";
+    } else {
+        repr += "None (unavailable)\n";
+    }
+
+    repr += "Performance cluster: ";
+    if (metrics.performance_cluster_mj) {
+        for (const auto& cluster : metrics.performance_cluster_mj.value()) {
+            repr += std::to_string(cluster) + " mJ  ";
+        }
+        repr += "\n";
+    } else {
+        repr += "None (unavailable)\n";
+    }
+
     repr += "Efficiency core manager: ";
     repr += metrics.efficiency_core_manager_mj
         ? (std::to_string(metrics.efficiency_core_manager_mj.value()) + " mJ\n")
@@ -85,6 +105,8 @@ void register_metrics(nb::module_& m)
         .def_rw("cpu_total_mj", &AppleEnergyMetrics::cpu_total_mj)
         .def_rw("efficiency_cores_mj", &AppleEnergyMetrics::efficiency_cores_mj)
         .def_rw("performance_cores_mj", &AppleEnergyMetrics::performance_cores_mj)
+        .def_rw("efficiency_cluster_mj", &AppleEnergyMetrics::efficiency_cluster_mj)
+        .def_rw("performance_cluster_mj", &AppleEnergyMetrics::performance_cluster_mj)
         .def_rw("efficiency_core_manager_mj",
             &AppleEnergyMetrics::efficiency_core_manager_mj)
         .def_rw("performance_core_manager_mj",
@@ -100,6 +122,6 @@ void register_monitor(nb::module_& m)
     nb::class_<AppleEnergyMonitor>(m, "AppleEnergyMonitor")
         .def(nb::init<>())
         .def("get_cumulative_energy", &AppleEnergyMonitor::get_cumulative_energy)
-        .def("begin_window", &AppleEnergyMonitor::begin_window, "key"_a)
+        .def("begin_window", &AppleEnergyMonitor::begin_window, "key"_a, "restart"_a = false)
         .def("end_window", &AppleEnergyMonitor::end_window, "key"_a);
 }

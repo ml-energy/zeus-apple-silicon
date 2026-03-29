@@ -30,7 +30,7 @@ Documentation = "https://ml.energy/zeus"
 
 [project.optional-dependencies]
 lint = ["ruff", "pyright!=1.1.395"]
-test = ["pytest"]
+test = ["pytest", "nanobind>=1.3.2"]
 dev = ["zeus-apple-silicon[lint,test]"]
 
 [tool.scikit-build]
