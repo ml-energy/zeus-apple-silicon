@@ -250,6 +250,10 @@ void test_m1_max_example()
         { "PACC1_CPU2", { 0, "mJ" } },
         { "PACC1_CPU3", { 0, "mJ" } },
 
+        { "EACC_CPU", { 0, "mJ" } },
+        { "PACC0_CPU", { 0, "mJ" } },
+        { "PACC1_CPU", { 0, "mJ" } },
+
         { "EACC_CPM", { 0, "mJ" } },
         { "PACC0_CPM", { 0, "mJ" } },
         { "PACC1_CPM", { 0, "mJ" } },
@@ -276,6 +280,10 @@ void test_m1_max_example()
         { "PACC1_CPU2", { 0, "mJ" } },
         { "PACC1_CPU3", { 0, "mJ" } },
 
+        { "EACC_CPU", { 10, "mJ" } },
+        { "PACC0_CPU", { 1700, "mJ" } },
+        { "PACC1_CPU", { 5, "mJ" } },
+
         { "EACC_CPM", { 2, "mJ" } },
         { "PACC0_CPM", { 20, "mJ" } },
         { "PACC1_CPM", { 6, "mJ" } },
@@ -296,6 +304,8 @@ void test_m1_max_example()
         std::make_optional(1701),
         std::make_optional(std::vector<int64_t> { 4, 2 }),
         std::make_optional(std::vector<int64_t> { 1651, 14, 2, 0, 0, 0, 0, 0 }),
+        std::make_optional(std::vector<int64_t> { 10 }),
+        std::make_optional(std::vector<int64_t> { 1700, 5 }),
         std::make_optional(2),
         std::make_optional(26),
         std::make_optional(358),
@@ -329,6 +339,9 @@ void test_m3_pro_example()
         { "PCPU4", { 0, "mJ" } },
         { "PCPU5", { 0, "mJ" } },
 
+        { "ECPU", { 0, "mJ" } },
+        { "PCPU", { 0, "mJ" } },
+
         { "ECPM", { 0, "mJ" } },
         { "PCPM", { 0, "mJ" } },
 
@@ -355,6 +368,9 @@ void test_m3_pro_example()
         { "PCPU4", { 3, "mJ" } },
         { "PCPU5", { 1893, "mJ" } },
 
+        { "ECPU", { 15, "mJ" } },
+        { "PCPU", { 25, "mJ" } },
+
         { "ECPM", { 5, "mJ" } },
         { "PCPM", { 19, "mJ" } },
 
@@ -375,6 +391,8 @@ void test_m3_pro_example()
         std::make_optional(2131),
         std::make_optional(std::vector<int64_t> { 5, 2, 2, 1, 1, 2 }),
         std::make_optional(std::vector<int64_t> { 1, 0, 9, 0, 3, 1893 }),
+        std::make_optional(std::vector<int64_t> { 15 }),
+        std::make_optional(std::vector<int64_t> { 25 }),
         std::make_optional(5),
         std::make_optional(19),
         std::make_optional(60),
@@ -406,6 +424,9 @@ void test_m4_example()
         { "PCPU2", { 0, "mJ" } },
         { "PCPU3", { 0, "mJ" } },
 
+        { "ECPU", { 0, "mJ" } },
+        { "PCPU", { 0, "mJ" } },
+
         { "ECPM", { 0, "mJ" } },
         { "PCPM", { 0, "mJ" } },
 
@@ -430,6 +451,9 @@ void test_m4_example()
         { "PCPU2", { 2104, "mJ" } },
         { "PCPU3", { 3, "mJ" } },
 
+        { "ECPU", { 8, "mJ" } },
+        { "PCPU", { 2200, "mJ" } },
+
         { "ECPM", { 2, "mJ" } },
         { "PCPM", { 16, "mJ" } },
 
@@ -450,6 +474,8 @@ void test_m4_example()
         std::make_optional(2174),
         std::make_optional(std::vector<int64_t> { 2, 1, 0, 0, 0, 0 }),
         std::make_optional(std::vector<int64_t> { 47, 1, 2104, 3 }),
+        std::make_optional(std::vector<int64_t> { 8 }),
+        std::make_optional(std::vector<int64_t> { 2200 }),
         std::make_optional(2),
         std::make_optional(16),
         std::make_optional(61),
@@ -488,6 +514,10 @@ void test_m4_pro_example()
         { "PACC1_CPU4", { 0, "mJ" } },
         { "PACC1_CPU5", { 0, "mJ" } },
 
+        { "EACC_CPU", { 0, "mJ" } },
+        { "PACC0_CPU", { 0, "mJ" } },
+        { "PACC1_CPU", { 0, "mJ" } },
+
         { "EACC_CPM", { 0, "mJ" } },
         { "PACC0_CPM", { 0, "mJ" } },
         { "PACC1_CPM", { 0, "mJ" } },
@@ -520,6 +550,10 @@ void test_m4_pro_example()
         { "PACC1_CPU4", { 1, "mJ" } },
         { "PACC1_CPU5", { 0, "mJ" } },
 
+        { "EACC_CPU", { 5, "mJ" } },
+        { "PACC0_CPU", { 3, "mJ" } },
+        { "PACC1_CPU", { 2120, "mJ" } },
+
         { "EACC_CPM", { 0, "mJ" } },
         { "PACC0_CPM", { 0, "mJ" } },
         { "PACC1_CPM", { 0, "mJ" } },
@@ -541,6 +575,8 @@ void test_m4_pro_example()
         std::make_optional(2118),
         std::make_optional(std::vector<int64_t> { 1, 1, 0, 0 }),
         std::make_optional(std::vector<int64_t> { 0, 0, 0, 0, 0, 0, 1, 908, 932, 275, 1, 0 }),
+        std::make_optional(std::vector<int64_t> { 5 }),
+        std::make_optional(std::vector<int64_t> { 3, 2120 }),
         std::make_optional(0),
         std::make_optional(0),
         std::make_optional(78),
@@ -645,10 +681,10 @@ void test_m5_max_example()
         { "MCPM1", { 0, "mJ" } },
         // P-core manager
         { "PCPM", { 0, "mJ" } },
-        // E-core cluster totals (should NOT be parsed as individual cores)
+        // E-core cluster totals
         { "MCPU0", { 0, "mJ" } },
         { "MCPU1", { 0, "mJ" } },
-        // P-core cluster total (should NOT be parsed as individual core)
+        // P-core cluster total
         { "PCPU", { 0, "mJ" } },
         // SRAM channels (should NOT be parsed as cores)
         { "MCPU0_0_SRAM", { 0, "mJ" } },
@@ -723,6 +759,19 @@ void test_m5_max_example()
     std::sort(pcores.begin(), pcores.end());
     std::vector<int64_t> pcores_expected = { 150, 200, 250, 300, 400, 500 };
     assert(pcores == pcores_expected);
+
+    // E-core cluster totals.
+    assert(result.efficiency_cluster_mj);
+    std::vector<int64_t> eclusters = result.efficiency_cluster_mj.value();
+    std::sort(eclusters.begin(), eclusters.end());
+    std::vector<int64_t> eclusters_expected = { 8888, 9999 };
+    assert(eclusters == eclusters_expected);
+
+    // P-core cluster total.
+    assert(result.performance_cluster_mj);
+    std::vector<int64_t> pclusters = result.performance_cluster_mj.value();
+    std::vector<int64_t> pclusters_expected = { 7777 };
+    assert(pclusters == pclusters_expected);
 
     // E-core manager: sum of MCPM0 + MCPM1 = 55.
     assert(result.efficiency_core_manager_mj.value() == 55);

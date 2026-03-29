@@ -56,6 +56,8 @@ struct AppleEnergyMetrics {
     std::optional<int64_t> cpu_total_mj;
     std::optional<std::vector<int64_t>> efficiency_cores_mj;
     std::optional<std::vector<int64_t>> performance_cores_mj;
+    std::optional<std::vector<int64_t>> efficiency_cluster_mj;
+    std::optional<std::vector<int64_t>> performance_cluster_mj;
     std::optional<int64_t> efficiency_core_manager_mj;
     std::optional<int64_t> performance_core_manager_mj;
 
@@ -212,6 +214,16 @@ private:
                     result.performance_cores_mj = std::vector<int64_t>();
                 }
                 result.performance_cores_mj->push_back(energy);
+            } else if (is_efficiency_cluster(channel_name)) {
+                if (!result.efficiency_cluster_mj) {
+                    result.efficiency_cluster_mj = std::vector<int64_t>();
+                }
+                result.efficiency_cluster_mj->push_back(energy);
+            } else if (is_performance_cluster(channel_name)) {
+                if (!result.performance_cluster_mj) {
+                    result.performance_cluster_mj = std::vector<int64_t>();
+                }
+                result.performance_cluster_mj->push_back(energy);
             } else if (is_efficiency_manager(channel_name)) {
                 result.efficiency_core_manager_mj = result.efficiency_core_manager_mj.value_or(0) + energy;
             } else if (is_performance_manager(channel_name)) {
@@ -302,6 +314,38 @@ private:
         // All generations: starts with 'P', ends with "CPM"
         // (e.g., PCPM, PACC0_CPM, PACC1_CPM).
         return !s.empty() && s[0] == 'P' && ends_with(s, "CPM");
+    }
+
+    // Checks if a channel name represents a CPU cluster total (including shared
+    // resources like L2 cache), as opposed to an individual core.
+    //
+    // Efficiency cluster patterns:
+    //   M1-M4:  ECPU, EACC_CPU (ends exactly with "CPU", no trailing digit)
+    //   M5:     MCPU0, MCPU1 (no underscore, no SRAM/DTL suffix)
+    //
+    // Performance cluster patterns:
+    //   M1-M4:  PCPU, PACC0_CPU, PACC1_CPU (ends exactly with "CPU")
+    //   M5:     PCPU (same)
+    bool is_efficiency_cluster(const std::string& s)
+    {
+        // M1-M4: starts with 'E', ends exactly with "CPU".
+        if (!s.empty() && s[0] == 'E' && ends_with(s, "CPU")) {
+            return true;
+        }
+        // M5: "MCPUx" — starts with "MCPU", followed by digit(s) only.
+        if (s.size() >= 5 && s.substr(0, 4) == "MCPU"
+            && s.find('_') == std::string::npos
+            && s.find("SRAM") == std::string::npos
+            && s.find("DTL") == std::string::npos) {
+            return all_digits(s, 4);
+        }
+        return false;
+    }
+
+    bool is_performance_cluster(const std::string& s)
+    {
+        // All generations: starts with 'P', ends exactly with "CPU".
+        return !s.empty() && s[0] == 'P' && ends_with(s, "CPU");
     }
 
     // Helper: checks if s contains "CPU" and everything after the last "CPU"

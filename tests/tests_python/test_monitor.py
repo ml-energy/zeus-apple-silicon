@@ -274,7 +274,7 @@ def test_m5_max_channels():
         "MCPM1": (0, "mJ"),
         # P-core manager
         "PCPM": (0, "mJ"),
-        # Cluster totals (should NOT be parsed as individual cores)
+        # Cluster totals
         "MCPU0": (0, "mJ"),
         "MCPU1": (0, "mJ"),
         "PCPU": (0, "mJ"),
@@ -356,6 +356,15 @@ def test_m5_max_channels():
     assert result.performance_cores_mj is not None
     assert len(result.performance_cores_mj) == 6
     assert sorted(result.performance_cores_mj) == [150, 200, 250, 300, 400, 500]
+
+    # E-core cluster totals: MCPU0=9999, MCPU1=8888.
+    assert result.efficiency_cluster_mj is not None
+    assert len(result.efficiency_cluster_mj) == 2
+    assert sorted(result.efficiency_cluster_mj) == [8888, 9999]
+
+    # P-core cluster total: PCPU=7777.
+    assert result.performance_cluster_mj is not None
+    assert result.performance_cluster_mj == [7777]
 
     # E-core manager: MCPM0 + MCPM1 = 55.
     assert result.efficiency_core_manager_mj == 55

@@ -34,6 +34,8 @@ void print_apple_energy_metrics(const AppleEnergyMetrics& metrics)
     print_metric("CPU Total", metrics.cpu_total_mj);
     print_vector("Efficiency Cores", metrics.efficiency_cores_mj);
     print_vector("Performance Cores", metrics.performance_cores_mj);
+    print_vector("Efficiency Cluster", metrics.efficiency_cluster_mj);
+    print_vector("Performance Cluster", metrics.performance_cluster_mj);
     print_metric("Efficiency Core Manager", metrics.efficiency_core_manager_mj);
     print_metric("Performance Core Manager", metrics.performance_core_manager_mj);
 

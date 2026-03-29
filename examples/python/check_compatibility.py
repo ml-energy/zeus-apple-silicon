@@ -58,8 +58,10 @@ def print_metrics(label: str, metrics: AppleEnergyMetrics) -> None:
     print(f"\n{label}:")
     print(format_field("CPU total", metrics.cpu_total_mj))
     print(format_field("Efficiency cores", metrics.efficiency_cores_mj))
+    print(format_field("Efficiency cluster", metrics.efficiency_cluster_mj))
     print(format_field("Efficiency core manager", metrics.efficiency_core_manager_mj))
     print(format_field("Performance cores", metrics.performance_cores_mj))
+    print(format_field("Performance cluster", metrics.performance_cluster_mj))
     print(format_field("Performance core manager", metrics.performance_core_manager_mj))
     print(format_field("DRAM", metrics.dram_mj))
     print(format_field("GPU", metrics.gpu_mj))
@@ -72,8 +74,10 @@ def summarize_available(metrics: AppleEnergyMetrics) -> tuple[list[str], list[st
     fields = {
         "cpu_total_mj": metrics.cpu_total_mj,
         "efficiency_cores_mj": metrics.efficiency_cores_mj,
+        "efficiency_cluster_mj": metrics.efficiency_cluster_mj,
         "efficiency_core_manager_mj": metrics.efficiency_core_manager_mj,
         "performance_cores_mj": metrics.performance_cores_mj,
+        "performance_cluster_mj": metrics.performance_cluster_mj,
         "performance_core_manager_mj": metrics.performance_core_manager_mj,
         "dram_mj": metrics.dram_mj,
         "gpu_mj": metrics.gpu_mj,
