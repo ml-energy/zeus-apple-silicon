@@ -202,39 +202,43 @@ private:
 
             energy = convert_to_mj(energy, unit);
 
-            if (channel_name.find("CPU Energy") != std::string::npos) {
-                result.cpu_total_mj = energy;
-            } else if (is_efficiency_core(channel_name)) {
+            // Multi-die (Ultra) chips prefix channel names with "DIE_N_".
+            // Strip this prefix so downstream matchers work on the base name.
+            std::string base_name = strip_die_prefix(channel_name);
+
+            if (base_name.find("CPU Energy") != std::string::npos) {
+                result.cpu_total_mj = result.cpu_total_mj.value_or(0) + energy;
+            } else if (is_efficiency_core(base_name)) {
                 if (!result.efficiency_cores_mj) {
                     result.efficiency_cores_mj = std::vector<int64_t>();
                 }
                 result.efficiency_cores_mj->push_back(energy);
-            } else if (is_performance_core(channel_name)) {
+            } else if (is_performance_core(base_name)) {
                 if (!result.performance_cores_mj) {
                     result.performance_cores_mj = std::vector<int64_t>();
                 }
                 result.performance_cores_mj->push_back(energy);
-            } else if (is_efficiency_cluster(channel_name)) {
+            } else if (is_efficiency_cluster(base_name)) {
                 if (!result.efficiency_cluster_mj) {
                     result.efficiency_cluster_mj = std::vector<int64_t>();
                 }
                 result.efficiency_cluster_mj->push_back(energy);
-            } else if (is_performance_cluster(channel_name)) {
+            } else if (is_performance_cluster(base_name)) {
                 if (!result.performance_cluster_mj) {
                     result.performance_cluster_mj = std::vector<int64_t>();
                 }
                 result.performance_cluster_mj->push_back(energy);
-            } else if (is_efficiency_manager(channel_name)) {
+            } else if (is_efficiency_manager(base_name)) {
                 result.efficiency_core_manager_mj = result.efficiency_core_manager_mj.value_or(0) + energy;
-            } else if (is_performance_manager(channel_name)) {
+            } else if (is_performance_manager(base_name)) {
                 result.performance_core_manager_mj = result.performance_core_manager_mj.value_or(0) + energy;
-            } else if (channel_name.find("DRAM") != std::string::npos) {
+            } else if (base_name.find("DRAM") != std::string::npos) {
                 result.dram_mj = result.dram_mj.value_or(0) + energy;
-            } else if (channel_name.find("GPU Energy") != std::string::npos) {
-                result.gpu_mj = energy;
-            } else if (channel_name.find("GPU SRAM") != std::string::npos) {
+            } else if (base_name.find("GPU Energy") != std::string::npos) {
+                result.gpu_mj = result.gpu_mj.value_or(0) + energy;
+            } else if (base_name.find("GPU SRAM") != std::string::npos) {
                 result.gpu_sram_mj = result.gpu_sram_mj.value_or(0) + energy;
-            } else if (channel_name.find("ANE") != std::string::npos) {
+            } else if (base_name.find("ANE") != std::string::npos) {
                 result.ane_mj = result.ane_mj.value_or(0) + energy;
             }
         }
@@ -251,6 +255,19 @@ private:
             return std::string(buffer);
         }
         throw std::runtime_error("Failed to convert CFString to std::string");
+    }
+
+    // Multi-die (Ultra) chips prefix IOReport channel names with "DIE_N_".
+    // Strip this so all downstream matchers work on the base name.
+    std::string strip_die_prefix(const std::string& name)
+    {
+        if (name.size() > 4 && name.substr(0, 4) == "DIE_") {
+            std::size_t second_underscore = name.find('_', 4);
+            if (second_underscore != std::string::npos && second_underscore + 1 < name.size()) {
+                return name.substr(second_underscore + 1);
+            }
+        }
+        return name;
     }
 
     // Checks if a channel name represents an individual CPU core energy reading.

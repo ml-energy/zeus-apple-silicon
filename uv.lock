@@ -6,10 +6,6 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 
-[options]
-exclude-newer = "2026-03-21T23:01:30.657526Z"
-exclude-newer-span = "P7D"
-
 [[package]]
 name = "colorama"
 version = "0.4.6"
@@ -245,7 +241,7 @@ wheels = [
 
 [[package]]
 name = "zeus-apple-silicon"
-version = "1.0.4"
+version = "1.1.0"
 source = { editable = "." }
 
 [package.optional-dependencies]

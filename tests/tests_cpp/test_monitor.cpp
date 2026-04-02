@@ -785,6 +785,143 @@ void test_m5_max_example()
     std::cout << "  > test_m5_max_example passed.\n";
 }
 
+void test_m2_ultra_example()
+{
+    std::cout << "* Running test_m2_ultra_example\n";
+    Mocker mocker;
+
+    // M2 Ultra: two dies, each with EACC/PACC naming.
+    // Channel names are prefixed with DIE_0_ / DIE_1_.
+    std::unordered_map<std::string, std::pair<int64_t, std::string>> data1 = {
+        // Die 0
+        { "DIE_0_EACC_CPU0", { 0, "mJ" } },
+        { "DIE_0_EACC_CPU1", { 0, "mJ" } },
+        { "DIE_0_EACC_CPU2", { 0, "mJ" } },
+        { "DIE_0_EACC_CPU3", { 0, "mJ" } },
+        { "DIE_0_PACC0_CPU0", { 0, "mJ" } },
+        { "DIE_0_PACC0_CPU1", { 0, "mJ" } },
+        { "DIE_0_PACC0_CPU2", { 0, "mJ" } },
+        { "DIE_0_PACC0_CPU3", { 0, "mJ" } },
+        { "DIE_0_EACC_CPU", { 0, "mJ" } },
+        { "DIE_0_PACC0_CPU", { 0, "mJ" } },
+        { "DIE_0_EACC_CPM", { 0, "mJ" } },
+        { "DIE_0_PACC0_CPM", { 0, "mJ" } },
+        { "DIE_0_CPU Energy", { 0, "mJ" } },
+        // Die 1
+        { "DIE_1_EACC_CPU0", { 0, "mJ" } },
+        { "DIE_1_EACC_CPU1", { 0, "mJ" } },
+        { "DIE_1_EACC_CPU2", { 0, "mJ" } },
+        { "DIE_1_EACC_CPU3", { 0, "mJ" } },
+        { "DIE_1_PACC0_CPU0", { 0, "mJ" } },
+        { "DIE_1_PACC0_CPU1", { 0, "mJ" } },
+        { "DIE_1_PACC0_CPU2", { 0, "mJ" } },
+        { "DIE_1_PACC0_CPU3", { 0, "mJ" } },
+        { "DIE_1_EACC_CPU", { 0, "mJ" } },
+        { "DIE_1_PACC0_CPU", { 0, "mJ" } },
+        { "DIE_1_EACC_CPM", { 0, "mJ" } },
+        { "DIE_1_PACC0_CPM", { 0, "mJ" } },
+        { "DIE_1_CPU Energy", { 0, "mJ" } },
+        // Shared (single die for GPU, per-die suffix for block channels)
+        { "GPU Energy", { 0, "nJ" } },
+        { "DRAM0", { 0, "mJ" } },
+        { "DRAM1", { 0, "mJ" } },
+        { "ANE0", { 0, "mJ" } },
+        { "ANE1", { 0, "mJ" } },
+        { "GPU SRAM0", { 0, "mJ" } },
+        { "GPU SRAM1", { 0, "mJ" } },
+    };
+    mocker.push_back_sample(data1);
+
+    std::unordered_map<std::string, std::pair<int64_t, std::string>> data2 = {
+        // Die 0
+        { "DIE_0_EACC_CPU0", { 10, "mJ" } },
+        { "DIE_0_EACC_CPU1", { 8, "mJ" } },
+        { "DIE_0_EACC_CPU2", { 6, "mJ" } },
+        { "DIE_0_EACC_CPU3", { 4, "mJ" } },
+        { "DIE_0_PACC0_CPU0", { 500, "mJ" } },
+        { "DIE_0_PACC0_CPU1", { 300, "mJ" } },
+        { "DIE_0_PACC0_CPU2", { 200, "mJ" } },
+        { "DIE_0_PACC0_CPU3", { 100, "mJ" } },
+        { "DIE_0_EACC_CPU", { 30, "mJ" } },
+        { "DIE_0_PACC0_CPU", { 1200, "mJ" } },
+        { "DIE_0_EACC_CPM", { 5, "mJ" } },
+        { "DIE_0_PACC0_CPM", { 15, "mJ" } },
+        { "DIE_0_CPU Energy", { 1500, "mJ" } },
+        // Die 1
+        { "DIE_1_EACC_CPU0", { 12, "mJ" } },
+        { "DIE_1_EACC_CPU1", { 9, "mJ" } },
+        { "DIE_1_EACC_CPU2", { 7, "mJ" } },
+        { "DIE_1_EACC_CPU3", { 3, "mJ" } },
+        { "DIE_1_PACC0_CPU0", { 450, "mJ" } },
+        { "DIE_1_PACC0_CPU1", { 350, "mJ" } },
+        { "DIE_1_PACC0_CPU2", { 250, "mJ" } },
+        { "DIE_1_PACC0_CPU3", { 150, "mJ" } },
+        { "DIE_1_EACC_CPU", { 35, "mJ" } },
+        { "DIE_1_PACC0_CPU", { 1300, "mJ" } },
+        { "DIE_1_EACC_CPM", { 6, "mJ" } },
+        { "DIE_1_PACC0_CPM", { 18, "mJ" } },
+        { "DIE_1_CPU Energy", { 1600, "mJ" } },
+        // Shared
+        { "GPU Energy", { 50000000, "nJ" } },
+        { "DRAM0", { 200, "mJ" } },
+        { "DRAM1", { 180, "mJ" } },
+        { "ANE0", { 20, "mJ" } },
+        { "ANE1", { 15, "mJ" } },
+        { "GPU SRAM0", { 40, "mJ" } },
+        { "GPU SRAM1", { 30, "mJ" } },
+    };
+    mocker.push_back_sample(data2);
+
+    AppleEnergyMonitor monitor;
+    monitor.begin_window("test");
+    AppleEnergyMetrics result = monitor.end_window("test");
+
+    // CPU Energy accumulates across dies: 1500 + 1600 = 3100
+    assert(result.cpu_total_mj.value() == 3100);
+
+    // 8 E-cores total (4 per die)
+    assert(result.efficiency_cores_mj);
+    assert(result.efficiency_cores_mj->size() == 8);
+    std::vector<int64_t> ecores = result.efficiency_cores_mj.value();
+    std::sort(ecores.begin(), ecores.end());
+    std::vector<int64_t> ecores_expected = { 3, 4, 6, 7, 8, 9, 10, 12 };
+    assert(ecores == ecores_expected);
+
+    // 8 P-cores total (4 per die)
+    assert(result.performance_cores_mj);
+    assert(result.performance_cores_mj->size() == 8);
+    std::vector<int64_t> pcores = result.performance_cores_mj.value();
+    std::sort(pcores.begin(), pcores.end());
+    std::vector<int64_t> pcores_expected = { 100, 150, 200, 250, 300, 350, 450, 500 };
+    assert(pcores == pcores_expected);
+
+    // E-core cluster totals: one per die
+    assert(result.efficiency_cluster_mj);
+    std::vector<int64_t> eclusters = result.efficiency_cluster_mj.value();
+    std::sort(eclusters.begin(), eclusters.end());
+    std::vector<int64_t> eclusters_expected = { 30, 35 };
+    assert(eclusters == eclusters_expected);
+
+    // P-core cluster totals: one per die
+    assert(result.performance_cluster_mj);
+    std::vector<int64_t> pclusters = result.performance_cluster_mj.value();
+    std::sort(pclusters.begin(), pclusters.end());
+    std::vector<int64_t> pclusters_expected = { 1200, 1300 };
+    assert(pclusters == pclusters_expected);
+
+    // Managers accumulate across dies
+    assert(result.efficiency_core_manager_mj.value() == 11); // 5 + 6
+    assert(result.performance_core_manager_mj.value() == 33); // 15 + 18
+
+    // Block channels accumulate across per-die suffixes
+    assert(result.dram_mj.value() == 380); // 200 + 180
+    assert(result.gpu_mj.value() == 50); // 50M nJ = 50 mJ
+    assert(result.gpu_sram_mj.value() == 70); // 40 + 30
+    assert(result.ane_mj.value() == 35); // 20 + 15
+
+    std::cout << "  > test_m2_ultra_example passed.\n";
+}
+
 int main()
 {
     std::cout << "--- Starting tests ---\n";
@@ -797,6 +934,7 @@ int main()
     test_m4_pro_example();
     test_restart_window();
     test_m5_max_example();
+    test_m2_ultra_example();
 
     std::cout << "--- All tests passed ---\n";
 }
