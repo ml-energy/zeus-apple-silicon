@@ -790,7 +790,7 @@ void test_ultra_example()
     std::cout << "* Running test_ultra_example\n";
     Mocker mocker;
 
-    // EXPERIMENTAL: Ultra chip channel names have not been verified on real hardware.
+    // Ultra chip: two dies, channel names prefixed with DIE_0_ / DIE_1_.
     std::unordered_map<std::string, std::pair<int64_t, std::string>> data1 = {
         // Die 0
         { "DIE_0_EACC_CPU0", { 0, "mJ" } },
