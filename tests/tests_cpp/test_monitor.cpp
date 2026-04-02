@@ -785,13 +785,12 @@ void test_m5_max_example()
     std::cout << "  > test_m5_max_example passed.\n";
 }
 
-void test_m2_ultra_example()
+void test_ultra_example()
 {
-    std::cout << "* Running test_m2_ultra_example\n";
+    std::cout << "* Running test_ultra_example\n";
     Mocker mocker;
 
-    // M2 Ultra: two dies, each with EACC/PACC naming.
-    // Channel names are prefixed with DIE_0_ / DIE_1_.
+    // EXPERIMENTAL: Ultra chip channel names have not been verified on real hardware.
     std::unordered_map<std::string, std::pair<int64_t, std::string>> data1 = {
         // Die 0
         { "DIE_0_EACC_CPU0", { 0, "mJ" } },
@@ -919,7 +918,7 @@ void test_m2_ultra_example()
     assert(result.gpu_sram_mj.value() == 70); // 40 + 30
     assert(result.ane_mj.value() == 35); // 20 + 15
 
-    std::cout << "  > test_m2_ultra_example passed.\n";
+    std::cout << "  > test_ultra_example passed.\n";
 }
 
 int main()
@@ -934,7 +933,7 @@ int main()
     test_m4_pro_example();
     test_restart_window();
     test_m5_max_example();
-    test_m2_ultra_example();
+    test_ultra_example();
 
     std::cout << "--- All tests passed ---\n";
 }

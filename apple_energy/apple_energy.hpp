@@ -202,8 +202,7 @@ private:
 
             energy = convert_to_mj(energy, unit);
 
-            // Multi-die (Ultra) chips prefix channel names with "DIE_N_".
-            // Strip this prefix so downstream matchers work on the base name.
+            // Strip DIE_N_ prefix for multi-die (Ultra) chips (experimental).
             std::string base_name = strip_die_prefix(channel_name);
 
             if (base_name.find("CPU Energy") != std::string::npos) {
@@ -257,8 +256,8 @@ private:
         throw std::runtime_error("Failed to convert CFString to std::string");
     }
 
-    // Multi-die (Ultra) chips prefix IOReport channel names with "DIE_N_".
-    // Strip this so all downstream matchers work on the base name.
+    // EXPERIMENTAL: Multi-die (Ultra) chip support has not been verified on real
+    // hardware.
     std::string strip_die_prefix(const std::string& name)
     {
         if (name.size() > 4 && name.substr(0, 4) == "DIE_") {
