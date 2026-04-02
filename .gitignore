@@ -12,3 +12,6 @@ __pycache__/
 # IDEs
 .vscode/
 **/.DS_Store
+
+# Env
+.envrc
